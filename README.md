@@ -2,7 +2,7 @@
 
 <img src="logo.png" width="155" height="68" alt="cljss logo" />
 
-[CSS-in-JS](https://speakerdeck.com/vjeux/react-css-in-js) stylesheets for ClojureScript
+[CSS-in-JS](https://speakerdeck.com/vjeux/react-css-in-js) for ClojureScript
 
 ## Table of Contents
 - [Features](#features)
@@ -23,7 +23,7 @@
 
 ## Installation
 
-Add to project.clj: `[org.roman01la/cljss "0.1.0"]`
+Add to project.clj: `[org.roman01la/cljss "0.1.0-SNAPSHOT"]`
 
 ## Usage
 
