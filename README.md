@@ -10,6 +10,7 @@
 - [Installation](#installation)
 - [Usage](#usage)
 - [Production build](#production-build)
+- [Issues](#issues)
 - [License](#license)
 
 ## Features
@@ -92,6 +93,11 @@ Compiler options
 {:compiler
  {:css-output-to "resources/public/css/styles.css"}}
 ```
+
+## Issues
+
+If you are using [Figwheel](https://github.com/bhauman/lein-figwheel) with build config validation enabled, you'll see an error `The key :css-output-to is unrecognized` in REPL when starting a project.
+Set `:validate-interactive :start` in Figwheel config to prevent it from interrupting startup. Validation errors still will be displayed.
 
 ## License
 
