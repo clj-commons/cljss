@@ -1,6 +1,6 @@
 # Clojure Style Sheets
 
-[CSS-in-JS](https://speakerdeck.com/vjeux/react-css-in-js) stylesheets for ClojureScript
+[CSS-in-JS](https://speakerdeck.com/vjeux/react-css-in-js) for ClojureScript
 
 ## Table of Contents
 - [Features](#features)
