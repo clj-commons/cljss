@@ -32,6 +32,24 @@
     (reduce str "{")
     (#(str % "}"))))
 
+(defn- parse-styles [names styles]
+  (map (fn [[selector rules]]
+        [(->unique-name selector names)
+         (->css-rules rules)])
+      styles))
+
+(defn- ->css-str [parsed]
+  (->> parsed
+       (map (fn [[selector rules]] (str "." selector rules)))
+       (reduce str)))
+
+(defn- styles->names [styles parsed]
+  (->> (interleave (keys styles) (map first parsed))
+       (partition 2)
+       (filter #(->> % first name (re-matches #".*:.*") not))
+       (map #(into [] %))
+       (into {})))
+
 (defmacro defstyles
   "Creates a mapping from style names to generated unique names.
 
@@ -45,18 +63,9 @@
     id     - fully-qualified keyword
     styles - hash map of styles definitions"
   [name id styles]
-  (let [names (atom {})
-        parsed (map (fn [[selector rules]]
-                      [(->unique-name selector names)
-                       (->css-rules rules)])
-                    styles)
-        css (->> parsed
-              (map (fn [[selector rules]] (str "." selector rules)))
-              (reduce str))
-        styles->css (->> (interleave (keys styles) (map first parsed))
-                      (partition 2)
-                      (map #(into [] %))
-                      (into {}))]
+  (let [parsed (parse-styles (atom {}) styles)
+        css (->css-str parsed)
+        styles->css (styles->names styles parsed)]
     (if css-output-to
       (do
         (spit css-output-to css :append true)

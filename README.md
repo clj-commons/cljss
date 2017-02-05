@@ -53,9 +53,7 @@ Using [Sablono](https://github.com/r0man/sablono) templating for [React](https:/
 
 ;; styles =>
 ;; {:list "list43696",
-;;  :list-item "list-item43697",
-;;  :list-item:hover "list-item43697:hover",
-;;  :list-item:last-child::after "list-item43697:last-child::after"
+;;  :list-item "list-item43697"}
 
 (html
   [:ul {:class (:list styles)}
