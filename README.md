@@ -21,7 +21,7 @@
 
 ## Installation
 
-Add to project.clj: `[org.roman01la/cljss "0.1.0"]`
+Add to project.clj: `[org.roman01la/cljss "0.1.0-SNAPSHOT"]`
 
 ## Usage
 
