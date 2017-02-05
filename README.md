@@ -1,5 +1,7 @@
 # Clojure Style Sheets
 
+<img src="logo.png" width="155" height="68" alt="cljss logo" />
+
 [CSS-in-JS](https://speakerdeck.com/vjeux/react-css-in-js) stylesheets for ClojureScript
 
 ## Table of Contents
