@@ -98,6 +98,7 @@ Compiler options
 
 If you are using [Figwheel](https://github.com/bhauman/lein-figwheel) with build config validation enabled, you'll see an error `The key :css-output-to is unrecognized` in REPL when starting a project.
 Set `:validate-interactive :start` in Figwheel config to prevent it from interrupting startup. Validation errors still will be displayed.
+This may also be achieved using `:validate-config :ignore-unknown-keys` to only validate options Figwheel recognizes.
 
 ## License
 
