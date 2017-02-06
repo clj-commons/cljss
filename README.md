@@ -28,10 +28,9 @@ Add to project.clj: `[org.roman01la/cljss "0.1.0-SNAPSHOT"]`
 
 ## Usage
 
-`(defstyles name id styles)`
+`(defstyles name styles)`
 
 - `name` name of a var
-- `id` a fully-qualified keyword (used for injecting unique `<style>` tag during development)
 - `styles` a hash map of styles definitions
 
 Using [Sablono](https://github.com/r0man/sablono) templating for [React](https://facebook.github.io/react/)
@@ -40,7 +39,7 @@ Using [Sablono](https://github.com/r0man/sablono) templating for [React](https:/
   (:require [cljss.core :refer-macros [defstyles]]
             [sablono.core :refer-macros [html]]))
 
-(defstyles styles ::list
+(defstyles styles
   {:list {:display "flex"
           :flex-direction "column"}
    :list-item {:height "48px"

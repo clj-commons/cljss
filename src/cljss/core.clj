@@ -1,5 +1,6 @@
 (ns cljss.core
-  (:require [cljs.analyzer.api :as ana-api]
+  (:require [cljs.analyzer :as ana]
+            [cljs.analyzer.api :as ana-api]
             [clojure.string :as s]))
 
 (def css-output-to
@@ -55,26 +56,23 @@
 (defmacro defstyles
   "Creates a mapping from style names to generated unique names.
 
-  (defstyles styles ::list
+  (defstyles styles
     {:list {:list-style \"none\"}
      :list-item {:height \"48px\"}})
 
-  styles  ;; => {:list \"list31247\", :list-item \"list-item31248\"}
-
-  Arguments:
-    id     - fully-qualified keyword
-    styles - hash map of styles definitions"
-  [name id styles]
+  styles  ;; => {:list \"list31247\", :list-item \"list-item31248\"}"
+  [var styles]
   (let [parsed (parse-styles (atom {}) styles)
         css (->css-str parsed)
         styles->css (styles->names styles parsed)]
     (if css-output-to
       (do
         (spit css-output-to css :append true)
-        `(def ~name ~styles->css))
-      `(def ~name (let [tag# (or (js/document.head.querySelector (str "style[data-id=\"" ~id "\"]"))
-                                 (js/document.createElement "style"))]
-                    (set! (.. tag# -dataset -id) ~id)
-                    (set! (.. tag# -innerText) ~css)
-                    (js/document.head.appendChild tag#)
-                    ~styles->css)))))
+        `(def ~var ~styles->css))
+      (let [id (->> (ana/resolve-var &env var) :name str)]
+        `(def ~var (let [tag# (or (js/document.head.querySelector (str "style[data-id=\"" ~id "\"]"))
+                                  (js/document.createElement "style"))]
+                     (set! (.. tag# -dataset -id) ~id)
+                     (set! (.. tag# -innerText) ~css)
+                     (js/document.head.appendChild tag#)
+                     ~styles->css))))))
