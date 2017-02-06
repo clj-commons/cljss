@@ -1,4 +1,4 @@
-## 0.1.0
+## 0.1.0-SNAPSHOT
 - Initial release
 - Exclude mapping for selectors with pseudo classes and elements [19b55d7d](https://github.com/roman01la/cljss/commit/19b55d7dcd8053dbd35fdcc7f4ec3de0ab4396e0)
 - Fix NullPointerException when cljs.env/*compiler* is nil [59bf4d33](https://github.com/roman01la/cljss/commit/59bf4d3346f6af55322511df8b0de8e9dc0640ed)
