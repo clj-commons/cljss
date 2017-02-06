@@ -94,8 +94,8 @@ Compiler options
 ```
 
 ## Issues
-
-If you are using [Figwheel](https://github.com/bhauman/lein-figwheel) with build config validation enabled, you'll see an error `The key :css-output-to is unrecognized` in REPL when starting a project.
+- `shouldComponentUpdate` optimization in React components prevents applying new styles when using code reloading e.g. [Figwheel](https://github.com/bhauman/lein-figwheel). A workaround would be to pass styles explicitly into a component.
+- If you are using [Figwheel](https://github.com/bhauman/lein-figwheel) with build config validation enabled, you'll see an error `The key :css-output-to is unrecognized` in REPL when starting a project.
 Set `:validate-config :ignore-unknown-keys` in Figwheel config to only validate options it recognizes.
 
 ## License
