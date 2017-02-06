@@ -2,7 +2,9 @@
   (:require [cljs.analyzer.api :as ana-api]
             [clojure.string :as s]))
 
-(def css-output-to (:css-output-to (ana-api/get-options)))
+(def css-output-to
+  (when cljs.env/*compiler*
+    (:css-output-to (ana-api/get-options))))
 
 (when css-output-to
   (spit css-output-to ""))
