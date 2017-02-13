@@ -4,6 +4,8 @@
 
 [CSS-in-JS](https://speakerdeck.com/vjeux/react-css-in-js) for ClojureScript
 
+[![Clojars](https://img.shields.io/clojars/v/org.roman01la/cljss.svg)](https://clojars.org/org.roman01la/cljss)
+
 ## Table of Contents
 - [Features](#features)
 - [How it works](#how-it-works)
