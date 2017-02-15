@@ -38,8 +38,8 @@ Add to project.clj: `[org.roman01la/cljss "0.1.0-SNAPSHOT"]`
 Using [Sablono](https://github.com/r0man/sablono) templating for [React](https://facebook.github.io/react/)
 ```clojure
 (ns example
-  (:require [cljss.core :refer-macros [defstyles]]
-            [sablono.core :refer-macros [html]]))
+  (:require-macros [cljss.core :refer [defstyles]])
+  (:require [sablono.core :refer-macros [html]]))
 
 (defstyles styles
   {:list {:display "flex"
