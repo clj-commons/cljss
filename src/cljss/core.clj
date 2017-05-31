@@ -1,78 +1,55 @@
 (ns cljss.core
   (:require [cljs.analyzer :as ana]
             [cljs.analyzer.api :as ana-api]
-            [clojure.string :as s]))
+            [cljss.utils :refer [build-css]]))
 
-(def css-output-to
+(def ^:private css-output-to
   (when cljs.env/*compiler*
     (:css-output-to (ana-api/get-options))))
 
 (when css-output-to
   (spit css-output-to ""))
 
-(defn- escape-val [r-name r-val]
-  (cond
-    (= r-name "content") (pr-str r-val)
-    :else r-val))
+(defn- varid [id idx [rule]]
+  [rule (str "--css-" id "-" idx)])
 
-(defn- parse-selector [selector]
-  (s/split (name selector) #"((?<=:)|(?=:))"))
+(defn- dynamic? [[_ value]]
+  (not (or (string? value)
+           (number? value))))
 
-(defn- ->unique-name [selector names]
-  (let [[class & pseudo] (parse-selector (name selector))
-        uclass (or (get @names class) (gensym class))]
-    (swap! names assoc class uclass)
-    (->> uclass
-         (conj pseudo)
-         (apply str))))
+(defn- pseudo? [[rule value]]
+  (and (re-matches #"&:.*" (name rule))
+       (map? value)))
 
-(defn- ->css-rules [rules]
-  (->> rules
-    (map (fn [[r-name r-val]]
-           (let [r-name (name r-name)]
-             [r-name (escape-val r-name r-val)])))
-    (map (fn [[r-name r-val]] (str r-name ":" r-val ";")))
-    (reduce str "{")
-    (#(str % "}"))))
+(defn- build-styles [cls id idx styles]
+  (let [dynamic (filterv dynamic? styles)
+        static (filterv (comp not dynamic?) styles)
+        vars (map-indexed #(varid id (+ idx %1) %2) dynamic)
+        vals (mapv (fn [[_ var] [_ exp]] [var exp]) vars dynamic)
+        static (->> vars
+                    (map (fn [[rule var]] [rule (str "var(" var ")")]))
+                    (concat static)
+                    (build-css cls))]
+    [static vals (count vars)]))
 
-(defn- parse-styles [names styles]
-  (map (fn [[selector rules]]
-        [(->unique-name selector names)
-         (->css-rules rules)])
-      styles))
+(defmacro defstyles [var args styles]
+  (let [pseudo (filterv pseudo? styles)
+        styles (filterv (comp not pseudo?) styles)
+        id# (name (gensym ""))
+        cls (str "css-" id#)
+        [static vals idx] (build-styles cls id# 0 styles)
+        pstyles (->> pseudo
+                  (map (fn [[rule styles]]
+                         (build-styles (str cls (subs (name rule) 1)) id# idx styles))))
+        static (->> pstyles
+                 (map first)
+                 (apply str)
+                 (str static))
+        vals# (->> pstyles
+                (mapcat second)
+                (into vals))]
 
-(defn- ->css-str [parsed]
-  (->> parsed
-       (map (fn [[selector rules]] (str "." selector rules)))
-       (reduce str)))
-
-(defn- styles->names [styles parsed]
-  (->> (interleave (keys styles) (map first parsed))
-       (partition 2)
-       (filter #(->> % first name (re-matches #".*:.*") not))
-       (map #(into [] %))
-       (into {})))
-
-(defmacro defstyles
-  "Creates a mapping from style names to generated unique names.
-
-  (defstyles styles
-    {:list {:list-style \"none\"}
-     :list-item {:height \"48px\"}})
-
-  styles  ;; => {:list \"list31247\", :list-item \"list-item31248\"}"
-  [var styles]
-  (let [parsed (parse-styles (atom {}) styles)
-        css (->css-str parsed)
-        styles->css (styles->names styles parsed)]
-    (if css-output-to
-      (do
-        (spit css-output-to css :append true)
-        `(def ~var ~styles->css))
-      (let [id (->> (ana/resolve-var &env var) :name str)]
-        `(def ~var (let [tag# (or (js/document.head.querySelector (str "style[data-id=\"" ~id "\"]"))
-                                  (js/document.createElement "style"))]
-                     (set! (.. tag# -dataset -id) ~id)
-                     (set! (.. tag# -innerText) ~css)
-                     (js/document.head.appendChild tag#)
-                     ~styles->css))))))
+    (when css-output-to
+      (spit css-output-to static :append true))
+    `(defn ~var ~args
+       (cljss.core/css ~id# ~vals#))))
