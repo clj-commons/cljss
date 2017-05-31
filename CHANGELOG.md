@@ -1,3 +1,6 @@
+## 1.0.0-SNAPSHOT
+- Dynamic styles via CSS Vars
+
 ## 0.1.0-SNAPSHOT
 - Initial release
 - Exclude mapping for selectors with pseudo classes and elements [19b55d7d](https://github.com/roman01la/cljss/commit/19b55d7dcd8053dbd35fdcc7f4ec3de0ab4396e0)
