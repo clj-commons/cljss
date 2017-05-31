@@ -4,6 +4,8 @@
 
 [CSS-in-JS](https://speakerdeck.com/vjeux/react-css-in-js) for ClojureScript
 
+[![Clojars](https://img.shields.io/clojars/v/org.roman01la/cljss.svg)](https://clojars.org/org.roman01la/cljss)
+
 ## Table of Contents
 - [Features](#features)
 - [How it works](#how-it-works)
@@ -36,8 +38,8 @@ Add to project.clj: `[org.roman01la/cljss "0.1.0-SNAPSHOT"]`
 Using [Sablono](https://github.com/r0man/sablono) templating for [React](https://facebook.github.io/react/)
 ```clojure
 (ns example
-  (:require [cljss.core :refer-macros [defstyles]]
-            [sablono.core :refer-macros [html]]))
+  (:require-macros [cljss.core :refer [defstyles]])
+  (:require [sablono.core :refer-macros [html]]))
 
 (defstyles styles
   {:list {:display "flex"
@@ -94,8 +96,8 @@ Compiler options
 ```
 
 ## Issues
-
-If you are using [Figwheel](https://github.com/bhauman/lein-figwheel) with build config validation enabled, you'll see an error `The key :css-output-to is unrecognized` in REPL when starting a project.
+- `shouldComponentUpdate` optimization in React components prevents applying new styles when using code reloading e.g. [Figwheel](https://github.com/bhauman/lein-figwheel). A workaround would be to pass styles explicitly into a component.
+- If you are using [Figwheel](https://github.com/bhauman/lein-figwheel) with build config validation enabled, you'll see an error `The key :css-output-to is unrecognized` in REPL when starting a project.
 Set `:validate-config :ignore-unknown-keys` in Figwheel config to only validate options it recognizes.
 
 ## License

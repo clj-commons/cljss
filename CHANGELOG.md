@@ -4,3 +4,4 @@
 - Fix NullPointerException when cljs.env/*compiler* is nil [59bf4d33](https://github.com/roman01la/cljss/commit/59bf4d3346f6af55322511df8b0de8e9dc0640ed)
 - Document alternative `:validate-config` Figwheel option [15a2dc8f](https://github.com/roman01la/cljss/commit/15a2dc8fda08b3fe9a58f794712add412ec8a676)
 - Use resolved var as a unique id instead of passing it manually [a76f2aec](https://github.com/roman01la/cljss/commit/a76f2aeccc94e5c29b47511286cfadaab7ce6936)
+- Note an issue about code reloading and React components with `shouldComponentUpdate` optimization enabled [0b0f7295](https://github.com/roman01la/cljss/commit/0b0f7295c876574107f1ca86191363b3e89b11e8)
