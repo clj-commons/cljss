@@ -4,6 +4,8 @@
 
 [CSS-in-JS](https://speakerdeck.com/vjeux/react-css-in-js) for ClojureScript
 
+_v1 is inspired by [threepointone/glam](https://github.com/threepointone/glam)_
+
 [![Clojars](https://img.shields.io/clojars/v/org.roman01la/cljss.svg)](https://clojars.org/org.roman01la/cljss)
 
 ## Table of Contents
@@ -18,71 +20,60 @@
 ## Features
 - Isolated styles by generating unique names
 - Supports CSS pseudo-classes and pseudo-elements
-- Injects styles into DOM within `<style>` tags in development
-- Outputs styles into a single file for production
+- Injects dynamic styles into `<style>` tag
+- Outputs static styles into a single file
 
 ## How it works
-`defstyles` macro accepts a hash map of style definitions and returns a hash map from style names to generated unique names.
+`defstyles` macro expands into a function which accepts arbitrary number of arguments and returns a string of auto-generated class names that references both static and dynamic styles.
+
+Dynamic styles are updated via CSS Variables (see [browser support](http://caniuse.com/#feat=css-variables)).
 
 ## Installation
 
-Add to project.clj: `[org.roman01la/cljss "0.1.0-SNAPSHOT"]`
+Add to project.clj: `[org.roman01la/cljss "1.0.0-SNAPSHOT"]`
 
 ## Usage
 
-`(defstyles name styles)`
+`(defstyles name [args] styles)`
 
 - `name` name of a var
-- `styles` a hash map of styles definitions
+- `[args]` arguments
+- `styles` a hash map of styles definition
 
 Using [Sablono](https://github.com/r0man/sablono) templating for [React](https://facebook.github.io/react/)
 ```clojure
-(ns example
-  (:require-macros [cljss.core :refer [defstyles]])
-  (:require [sablono.core :refer-macros [html]]))
+(ns example.core
+  (:require [sablono.core :refer-macros [html]]
+            [cljss.core :refer-macros [defstyles]]))
 
-(defstyles styles
-  {:list {:display "flex"
-          :flex-direction "column"}
-   :list-item {:height "48px"
-               :background "#cccccc"
-               :color "#242424"
-               :font-size "18px"}
-   :list-item:hover {:background "#dddddd"}
-   :list-item:last-child::after {:content "last item"
-                                 :display "block"
-                                 :position "relative"}})
+(defstyles button [bg]
+  {:font-size "14px"
+   :background-color bg})
 
-;; styles =>
-;; {:list "list43696",
-;;  :list-item "list-item43697"}
+;; expands into =>
+;; (defn button [bg]
+;;   (cljss.core/css "43696" [[:background-color bg]]))
 
 (html
-  [:ul {:class (:list styles)}
-   [:li {:class (:list-item styles)} "Item#1"]
-   [:li {:class (:list-item styles)} "Item#2"]
-   [:li {:class (:list-item styles)} "Item#3"]])
+  [:div
+   [:button {:class (button "green")} "hit me"]])
+
+;; (button "green") returns =>
+;; "css-43696 vars-43696"
 ```
 
-Output CSS (pretty):
+Output in CSS file (pretty):
 ```css
-.list43696 {
-  display: flex;
-  flex-direction: column;
+.css-43696 {
+  font-size: 14px;
+  background-color: var(--css-43696-0);
 }
-.list-item43697 {
-  height: 48px;
-  background: #cccccc;
-  color: #242424;
-  font-size: 18px;
-}
-.list-item43697:hover {
-  background: #dddddd;
-}
-.list-item43697:last-child::after {
-  content: "last item";
-  display: block;
-  position: relative;
+```
+
+Dynamically injected:
+```css
+.vars-43696 {
+  --css-43696-0: green;
 }
 ```
 
@@ -96,7 +87,6 @@ Compiler options
 ```
 
 ## Issues
-- `shouldComponentUpdate` optimization in React components prevents applying new styles when using code reloading e.g. [Figwheel](https://github.com/bhauman/lein-figwheel). A workaround would be to pass styles explicitly into a component.
 - If you are using [Figwheel](https://github.com/bhauman/lein-figwheel) with build config validation enabled, you'll see an error `The key :css-output-to is unrecognized` in REPL when starting a project.
 Set `:validate-config :ignore-unknown-keys` in Figwheel config to only validate options it recognizes.
 
