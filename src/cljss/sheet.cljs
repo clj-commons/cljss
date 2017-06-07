@@ -3,7 +3,7 @@
             [goog.dom :as dom]))
 
 (defn- make-style-tag []
-  (let [tag (dom/createElement"style")
+  (let [tag (dom/createElement "style")
         head (aget (dom/getElementsByTagNameAndClass "head") 0)]
     (gobj/set tag "type" "text/css")
     (dom/appendChild tag (dom/createTextNode ""))
