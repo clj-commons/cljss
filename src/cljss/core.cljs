@@ -1,8 +1,20 @@
 (ns cljss.core
   (:require [cljsjs.react]
+            [goog.object :as gobj]
             [sablono.core :refer [html]]
             [cljss.sheet :refer [create-sheet insert!]]
             [cljss.utils :refer [build-css]]))
+
+;; Retrieve 64-bit IEEE754 representation of JavaScript's Number type
+(defn- double->ieee [f]
+  (-> f js/Float64Array.of (gobj/get "buffer") js/Uint32Array. js/Array.from (aget 1)))
+
+;; A hack to hash JavaScript's Number type as Java's Double
+(extend-type js/Number
+  IHash
+  (-hash [n]
+    (double->ieee n)))
+
 
 (defonce ^:private sheet (create-sheet))
 

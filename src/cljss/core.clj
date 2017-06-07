@@ -12,10 +12,19 @@
 
 
 
+(defn- css-vals->doubles [rules]
+  (mapv
+    (fn [[k v]]
+      (if (number? v)
+        [k (double v)]
+        [k v]))
+    rules))
+
+
+
 (defn css [cls vars]
-  (println vars)
   (if (seq vars)
-    (let [var-cls (str "vars-" (hash vars))
+    (let [var-cls (->> vars css-vals->doubles hash (str "vars-"))
           css-str (build-css var-cls vars)]
       (when (and (seq css-str) true)
         (spit "resources/public/css/styles.css" css-str :append true))
@@ -58,7 +67,7 @@
 (defmacro defstyles [var args styles]
   (let [pseudo (filterv pseudo? styles)
         styles (filterv (comp not pseudo?) styles)
-        id# (-> styles hash str)
+        id# (-> styles css-vals->doubles hash str)
         cls (str "css-" id#)
         [static vals idx] (build-styles cls id# 0 styles)
         pstyles (->> pseudo
@@ -81,7 +90,7 @@
   (let [tag# (name tag)
         pseudo (filterv pseudo? styles)
         styles (filterv (comp not pseudo?) styles)
-        id# (-> styles hash str)
+        id# (-> styles css-vals->doubles hash str)
         cls (str "css-" id#)
         attrs# (->> styles (map second) (filterv keyword?))
         [static vals idx] (build-styles cls id# 0 styles)
