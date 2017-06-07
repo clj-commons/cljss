@@ -22,12 +22,13 @@
       (str "css-" cls " " var-cls))
     (str "css-" cls)))
 
-(defn styled [tag cls vars]
+(defn styled [tag cls vars attrs]
   (fn [props & children]
     (let [[props children] (if (map? props) [props children] [{} (into [props] children)])
           varClass (->> vars (map (fn [[cls v]] (if (ifn? v) [cls (v props)] [cls v]))) (css cls))
           className (str (get props :class "") " " varClass)
-          props (assoc props :class className)]
+          props (assoc props :class className)
+          props (apply dissoc props attrs)]
       (apply vector tag props children))))
 
 
@@ -82,6 +83,7 @@
         styles (filterv (comp not pseudo?) styles)
         id# (-> styles hash str)
         cls (str "css-" id#)
+        attrs# (->> styles (map second) (filterv keyword?))
         [static vals idx] (build-styles cls id# 0 styles)
         pstyles (->> pseudo
                      (map (fn [[rule styles]]
@@ -96,4 +98,4 @@
     (when css-output-to
       (spit css-output-to static :append true))
     `(def ~var
-       (cljss.core/styled ~tag# ~id# ~vals#))))
+       (cljss.core/styled ~tag# ~id# ~vals# ~attrs#))))
