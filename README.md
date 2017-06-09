@@ -9,6 +9,7 @@ _v1 is inspired by [threepointone/glam](https://github.com/threepointone/glam) a
 [![Clojars](https://img.shields.io/clojars/v/org.roman01la/cljss.svg)](https://clojars.org/org.roman01la/cljss)
 
 ## Table of Contents
+- [Why write CSS in ClojureScript?](#why-write-css-in-clojurescript)
 - [Features](#features)
 - [How it works](#how-it-works)
 - [Installation](#installation)
@@ -17,8 +18,18 @@ _v1 is inspired by [threepointone/glam](https://github.com/threepointone/glam) a
 - [Issues](#issues)
 - [License](#license)
 
+## Why write CSS in ClojureScript?
+
+Writing styles this way has the same benefits as writing components that keep together view logic and presentation. It all comes to developer efficiency and maintainability.
+
+Thease are some resources that can give you more context:
+
+- [“A Unified Styling Language”](https://medium.com/seek-blog/a-unified-styling-language-d0c208de2660) by Mark Dalgleish
+- [“A Unified Styling Language”](https://www.youtube.com/watch?v=X_uTCnaRe94) (talk) by Mark Dalgleish
+- [“The road to styled components: CSS in component-based systems”](https://www.youtube.com/watch?v=MT4D_DioYC8) by Glen Maddern
+
 ## Features
-- Isolated styles by generating unique names
+- Automatic scoped styles by generating unique names
 - Supports CSS pseudo-classes and pseudo-elements
 - Injects dynamic styles into `<style>` tag at run-time
 - Outputs static styles into a single file at compile-time
