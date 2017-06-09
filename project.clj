@@ -1,4 +1,4 @@
-(defproject org.roman01la/cljss "1.0.0-SNAPSHOT"
+(defproject org.roman01la/cljss "1.1.0"
   :description "Clojure Style Sheets"
   :url "https://github.com/roman01la/cljss"
   :license {:name "Eclipse Public License"

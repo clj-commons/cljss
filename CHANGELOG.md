@@ -1,3 +1,6 @@
+## 1.1.0
+- Styled React components via `defstyled` macro
+
 ## 1.0.0-SNAPSHOT
 - Dynamic styles via CSS Vars
 
