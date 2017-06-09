@@ -2,6 +2,8 @@
   (:require [goog.object :as gobj]
             [goog.dom :as dom]))
 
+(def ^:private dev? ^boolean goog.DEBUG)
+
 (defn- make-style-tag []
   (let [tag (dom/createElement "style")
         head (aget (dom/getElementsByTagNameAndClass "head") 0)]
@@ -28,12 +30,20 @@
 
 (deftype Sheet [tag]
   ISheet
-  (insert! [this css]
+  (insert! [this rule]
     (let [sheet (find-sheet tag)
           rules-count (gobj/get (gobj/get sheet "cssRules") "length")]
-      (if (not= (.indexOf css "@import") -1)
-        (.insertRule sheet css 0)
-        (.insertRule sheet css rules-count))))
+      (if dev?
+        (if (not= (.indexOf rule "@import") -1)
+          (.insertBefore tag (dom/createTextNode rule) (gobj/get tag "firstChild"))
+          (dom/appendChild tag (dom/createTextNode rule)))
+        (try
+          (if (not= (.indexOf rule "@import") -1)
+            (.insertRule sheet rule 0)
+            (.insertRule sheet rule rules-count))
+          (catch :default e
+            (when dev?
+              (js/console.warn "Illegal CSS rule" rule)))))))
   (flush! [this]
     (-> tag
         .parentNode

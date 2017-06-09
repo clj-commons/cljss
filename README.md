@@ -22,6 +22,7 @@ _v1 is inspired by [threepointone/glam](https://github.com/threepointone/glam) a
 - Supports CSS pseudo-classes and pseudo-elements
 - Injects dynamic styles into `<style>` tag at run-time
 - Outputs static styles into a single file at compile-time
+- Debuggable styles in development (set via `goog.DEBUG`)
 
 ## How it works
 
@@ -127,13 +128,23 @@ Dynamically injected:
 }
 ```
 
-## Production build
+## Development
 
 Compiler options
 
 ```clojure
 {:compiler
  {:css-output-to "resources/public/css/styles.css"}}
+```
+
+## Production build
+
+Compiler options
+
+```clojure
+{:compiler
+ {:css-output-to "resources/public/css/styles.css"
+  :closure-defines {"goog.DEBUG" false}}}
 ```
 
 ## Issues
