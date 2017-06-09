@@ -5,16 +5,6 @@
             [cljss.sheet :refer [create-sheet insert!]]
             [cljss.utils :refer [build-css]]))
 
-;; Retrieve 64-bit IEEE754 representation of JavaScript's Number type
-(defn- double->ieee [f]
-  (-> f js/Float64Array.of (gobj/get "buffer") js/Uint32Array. js/Array.from (aget 1)))
-
-;; A hack to hash JavaScript's Number type as Java's Double
-(extend-type js/Number
-  IHash
-  (-hash [n]
-    (double->ieee n)))
-
 
 (defonce ^:private sheet (create-sheet))
 
@@ -29,7 +19,8 @@
   (fn [props & children]
     (let [[props children] (if (map? props) [props children] [{} (into [props] children)])
           varClass (->> vars (map (fn [[cls v]] (if (ifn? v) [cls (v props)] [cls v]))) (css cls))
-          className (str (get props :className "") " " varClass)
+          className (get props :className)
+          className (str (when className (str className " ")) varClass)
           props (assoc props :className className)
           props (apply dissoc props attrs)]
       (apply js/React.createElement tag (clj->js props) (html children)))))
