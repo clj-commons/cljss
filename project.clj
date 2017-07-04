@@ -4,6 +4,4 @@
   :license {:name "Eclipse Public License"
             :url "http://www.eclipse.org/legal/epl-v10.html"}
   :dependencies [[org.clojure/clojure "1.9.0-alpha16" :scope "provided"]
-                 [org.clojure/clojurescript "1.9.562" :scope "provided"]
-                 [cljsjs/react "15.5.4-1" :scope "provided"]
-                 [sablono "0.8.0" :scope "provided"]])
+                 [org.clojure/clojurescript "1.9.562" :scope "provided"]])

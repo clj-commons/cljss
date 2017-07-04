@@ -1,16 +1,5 @@
 (ns cljss.core
-  (:require [cljs.analyzer :as ana]
-            [cljs.analyzer.api :as ana-api]
-            [cljss.utils :refer [build-css]]))
-
-(def ^:private css-output-to
-  (when cljs.env/*compiler*
-    (:css-output-to (ana-api/get-options))))
-
-(when css-output-to
-  (spit css-output-to ""))
-
-
+  (:require [cljss.utils :refer [build-css]]))
 
 (defn- varid [id idx [rule]]
   [rule (str "--css-" id "-" idx)])
@@ -34,28 +23,6 @@
                     (build-css cls))]
     [static vals (count vars)]))
 
-(defmacro defstyles [var args styles]
-  (let [pseudo (filterv pseudo? styles)
-        styles (filterv (comp not pseudo?) styles)
-        id# (-> styles hash str)
-        cls (str "css-" id#)
-        [static vals idx] (build-styles cls id# 0 styles)
-        pstyles (->> pseudo
-                     (map (fn [[rule styles]]
-                            (build-styles (str cls (subs (name rule) 1)) id# idx styles))))
-        static (->> pstyles
-                    (map first)
-                    (apply str)
-                    (str static))
-        vals# (->> pstyles
-                   (mapcat second)
-                   (into vals))]
-
-    (when css-output-to
-      (spit css-output-to static :append true))
-    `(defn ~var ~args
-       (cljss.core/css ~id# ~vals#))))
-
 (defmacro defstyled [var tag styles]
   (let [tag# (name tag)
         pseudo (filterv pseudo? styles)
@@ -67,14 +34,12 @@
         pstyles (->> pseudo
                      (map (fn [[rule styles]]
                             (build-styles (str cls (subs (name rule) 1)) id# idx styles))))
-        static (->> pstyles
-                    (map first)
-                    (apply str)
-                    (str static))
+        static# (->> pstyles
+                     (map first)
+                     (apply str)
+                     (str static))
         vals# (->> pstyles
                    (mapcat second)
                    (into vals))]
-    (when css-output-to
-      (spit css-output-to static :append true))
     `(def ~var
-       (cljss.core/styled ~tag# ~id# ~vals# ~attrs#))))
+       (cljss.core/styled ~tag# ~id# ~static# ~vals# ~attrs#))))
