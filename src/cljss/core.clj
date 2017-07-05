@@ -1,5 +1,9 @@
 (ns cljss.core
-  (:require [cljss.utils :refer [build-css]]))
+  (:require [cljs.analyzer :as ana]
+            [cljss.utils :refer [build-css]]))
+
+; (let [var (ana/resolve-var &env y (ana/confirm-var-exists-throw))]
+;   (-> var :tag keyword))
 
 (defn- varid [id idx [rule]]
   [rule (str "--css-" id "-" idx)])
