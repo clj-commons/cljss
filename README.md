@@ -4,8 +4,6 @@
 
 [CSS-in-JS](https://speakerdeck.com/vjeux/react-css-in-js) for ClojureScript
 
-_v1 is inspired by [threepointone/glam](https://github.com/threepointone/glam) and [tkh44/emotion](https://github.com/tkh44/emotion)_
-
 [![Clojars](https://img.shields.io/clojars/v/org.roman01la/cljss.svg)](https://clojars.org/org.roman01la/cljss)
 
 ## Table of Contents
@@ -15,7 +13,6 @@ _v1 is inspired by [threepointone/glam](https://github.com/threepointone/glam) a
 - [Installation](#installation)
 - [Usage](#usage)
 - [Production build](#production-build)
-- [Issues](#issues)
 - [License](#license)
 
 ## Why write CSS in ClojureScript?
@@ -31,34 +28,18 @@ Thease are some resources that can give you more context:
 ## Features
 - Automatic scoped styles by generating unique names
 - Supports CSS pseudo-classes and pseudo-elements
-- Injects dynamic styles into `<style>` tag at run-time
-- Outputs static styles into a single file at compile-time
+- Injects styles into `<style>` tag at run-time
 - Debuggable styles in development (set via `goog.DEBUG`)
 
 ## How it works
-
-### `defstyles`
-
-`defstyles` macro expands into a function which accepts arbitrary number of arguments and returns a string of auto-generated class names that references both static and dynamic styles.
-
-```clojure
-(defstyles button [bg]
-  {:font-size "14px"
-   :background-color bg})
-
-(button "#000")
-;; "css-43696 vars-43696"
-```
-
-Dynamic styles are updated via CSS Variables (see [browser support](http://caniuse.com/#feat=css-variables)).
 
 ### `defstyled`
 
 `defstyled` macro accepts var name, HTML element tag name as a keyword and a hash of styles.
 
-The macro expands into a function which accepts optional hash of attributes and child components, and returns plain React component definition. Static part of the styles are written into a file at compile-time.
+The macro expands into a function which accepts optional hash of attributes and child components, and returns Hiccup.
 
-A hash of attributes can be used to pass dynamic CSS values as well as normal attributes onto HTML tag React component. Reading from attributes hash map can be done via anything that satisfies `cljs.core/ifn?` predicate (`Fn` and `IFn` protocols, and normal functions). It is recommended to use keywords.
+A hash of attributes with dynamic CSS values as well as normal HTML attributes can be passed into underlying React component. Reading from attributes hash map can be done via anything that satisfies `cljs.core/ifn?` predicate (`Fn` and `IFn` protocols, and normal functions). It is recommended to use keywords.
 
 ```clojure
 (defstyled h1 :h1
@@ -67,22 +48,14 @@ A hash of attributes can be used to pass dynamic CSS values as well as normal at
    :color #(-> % :color {:light "#fff" :dark "#000"})})
 
 (h1 {:size "32px" :color :dark} "Hello, world!")
-;; (js/React.createElement "h1" #js {:className "css-43697 vars-43697"} "Hello, world!")
+;; [:h1 {:className "css-43697 vars-43697"} "Hello, world!"]
 ```
-
-NOTE: _Child components are rendered using Sablono, which means they are expected to be Hiccup-style components._
 
 ## Installation
 
-Add to project.clj: `[org.roman01la/cljss "1.1.0"]`
+Add to project.clj: `[org.roman01la/cljss "1.2.0"]`
 
 ## Usage
-
-`(defstyles name [args] styles)`
-
-- `name` name of a var
-- `[args]` arguments
-- `styles` a hash map of styles definition
 
 `(defstyled name tag-name styles)`
 
@@ -93,74 +66,40 @@ Add to project.clj: `[org.roman01la/cljss "1.1.0"]`
 Using [Sablono](https://github.com/r0man/sablono) templating for [React](https://facebook.github.io/react/)
 ```clojure
 (ns example.core
-  (:require [sablono.core :refer-macros [html]]
-            [cljss.core :refer-macros [defstyles]]))
+  (:require [sablono.core :refer [html]]
+            [cljss.core :refer [defstyled]]))
 
-(defstyles button [bg]
-  {:font-size "14px"
-   :background-color bg})
-
-;; expands into =>
-;; (defn button [bg]
-;;   (cljss.core/css "43696" [[:background-color bg]]))
-
-(defstyled wrapper :div
+(defstyled Button :button
   {:padding "16px"
-   :background :bg})
-
- ;; expands into =>
- ;; (def wrapper
- ;;   (cljss.core/styled "div" "43697" [[:background :bg]] [:bg]))
+   :margin-top :v-margin
+   :margin-bottom :v-margin})
 
 (html
-  (wrapper {:bg "#fafafa"}
-   [:button {:class (button "green")} "hit me"]))
+  (Button {:v-marging "8px"
+           :on-click #(console.log "Click!")}))
 ```
 
-Output in CSS file (pretty):
+Dynamically injected CSS:
 ```css
-.css-43696 {
-  font-size: 14px;
-  background-color: var(--css-43696-0);
-}
 .css-43697 {
   padding: 16px;
-  background: var(--css-43697-0);
-}
-```
-
-Dynamically injected:
-```css
-.vars-43696 {
-  --css-43696-0: green;
+  margin-top: var(--css-43697-0);
+  margin-bottom: var(--css-43697-1);
 }
 .vars-43697 {
-  --css-43697-0: #fafafa;
+  --css-43697-0: 8px;
+  --css-43697-1: 8px;
 }
-```
-
-## Development
-
-Compiler options
-
-```clojure
-{:compiler
- {:css-output-to "resources/public/css/styles.css"}}
 ```
 
 ## Production build
 
-Compiler options
+Set `goog.DEBUG` to `false` to enable fast path styles injection.
 
 ```clojure
 {:compiler
- {:css-output-to "resources/public/css/styles.css"
-  :closure-defines {"goog.DEBUG" false}}}
+ {:closure-defines {"goog.DEBUG" false}}}
 ```
-
-## Issues
-- If you are using [Figwheel](https://github.com/bhauman/lein-figwheel) with build config validation enabled, you'll see an error `The key :css-output-to is unrecognized` in REPL when starting a project.
-Set `:validate-config :ignore-unknown-keys` in Figwheel config to only validate options it recognizes.
 
 ## License
 
