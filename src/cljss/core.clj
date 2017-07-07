@@ -51,26 +51,29 @@
     `(defn ~var ~args
        (cljss.core/css ~id# ~static# ~vals#))))
 
-(defn- ->styled
-  "Takes a hash map of styles definition.
-   Generates and returns class name, static and dynamic parts of styles."
-  [styles]
-  (let [attrs (->> styles (map second) (filterv keyword?))
-        [id static vals] (build-styles styles)]
-    [id static vals attrs]))
-
 (defn- vals->array [vals]
   (let [arrseq (mapv (fn [[var val]] `(cljs.core/array ~var ~val)) vals)]
     `(cljs.core/array ~@arrseq)))
 
-(defmacro defstyled
+(defn ->styled
   "Takes var name, HTML tag name and a hash map of styles definition.
    Returns a var bound to the result of calling `cljss.core/styled`,
    which produces React element and injects styles."
   [var tag styles]
-  (let [tag# (name tag)
-        [id# static# vals attrs] (->styled styles)
-        vals# (vals->array vals)
-        attrs# `(cljs.core/array ~@attrs)]
-    `(def ~var
-       (cljss.core/styled ~tag# ~id# ~static# ~vals# ~attrs#))))
+  (let [tag (name tag)
+        [id static vals] (build-styles styles)
+        vals (vals->array vals)
+        attrs (->> styles (map second) (filterv keyword?))
+        attrs `(cljs.core/array ~@attrs)]
+    [tag id static vals attrs]))
+
+(defmacro make-styled []
+  '(defn styled [cls static vars attrs create-element]
+    (fn [props & children]
+      (let [[props children] (if (map? props) (array props children) (array {} (.concat (array props) (to-array children))))
+            var-class (->> vars (map (fn [[cls v]] (if (ifn? v) (array cls (v props)) (array cls v)))) (cljss.core/css cls static))
+            className (:className props)
+            className (str (when className (str className " ")) var-class)
+            props (assoc props :className className)
+            props (apply dissoc props attrs)]
+        (create-element props children)))))

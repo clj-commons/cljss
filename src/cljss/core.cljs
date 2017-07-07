@@ -15,13 +15,3 @@
       (insert! sheet (build-css var-cls vars))
       (str "css-" cls " " var-cls))
     (str "css-" cls)))
-
-(defn styled [tag cls static vars attrs]
-  (fn [props & children]
-    (let [[props children] (if (map? props) #js [props children] #js [{} (.concat #js [props] (to-array children))])
-          var-class (->> vars (map (fn [[cls v]] (if (ifn? v) #js [cls (v props)] #js [cls v]))) (css cls static))
-          className (:className props)
-          className (str (when className (str className " ")) var-class)
-          props (assoc props :className className)
-          props (apply dissoc props attrs)]
-      (apply js/React.createElement tag (clj->js props) children))))
