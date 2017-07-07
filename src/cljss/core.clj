@@ -51,23 +51,20 @@
     `(defn ~var ~args
        (cljss.core/css ~id# ~static# ~vals#))))
 
-(defn ->styled
-  "Takes var name, HTML tag name and a hash map of styles definition.
-   Generates class name, static and dynamic parts of styles.
-   Returns a var bound to the result of calling `cljss.core/styled`,
-   which produces Hiccup-style element and injects styles."
+(defn- ->styled
+  "Takes a hash map of styles definition.
+   Generates and returns class name, static and dynamic parts of styles."
   [styles]
   (let [attrs (->> styles (map second) (filterv keyword?))
         [id static vals] (build-styles styles)]
     [id static vals attrs]))
 
-(defmacro make-styled []
-  '(defn styled [cls static vars attrs create-element]
-    (fn [props & children]
-      (let [[props children] (if (map? props) [props children] [{} (into [props] children)])
-            varClass (->> vars (map (fn [[cls v]] (if (ifn? v) [cls (v props)] [cls v]))) (cljss.core/css cls static))
-            className (get props :className)
-            className (str (when className (str className " ")) varClass)
-            props (assoc props :className className)
-            props (apply dissoc props attrs)]
-        (create-element props children)))))
+(defmacro defstyled
+  "Takes var name, HTML tag name and a hash map of styles definition.
+   Returns a var bound to the result of calling `cljss.core/styled`,
+   which produces React element and injects styles."
+  [var tag styles]
+  (let [tag# (name tag)
+        [id# static# vals# attrs#] (->styled styles)]
+    `(def ~var
+       (cljss.core/styled ~tag# ~id# ~static# ~vals# ~attrs#))))
