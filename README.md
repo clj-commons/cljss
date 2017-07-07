@@ -33,13 +33,28 @@ Thease are some resources that can give you more context:
 
 ## How it works
 
+### `defstyles`
+
+`defstyles` macro expands into a function which accepts arbitrary number of arguments and returns a string of auto-generated class names that references both static and dynamic styles.
+
+```clojure
+(defstyles button [bg]
+  {:font-size "14px"
+   :background-color bg})
+
+(button "#000")
+;; "-css-43696 -vars-43696"
+```
+
+Dynamic styles are updated via CSS Variables (see [browser support](http://caniuse.com/#feat=css-variables)).
+
 ### `defstyled`
 
 `defstyled` macro accepts var name, HTML element tag name as a keyword and a hash of styles.
 
-The macro expands into a function which accepts optional hash of attributes and child components, and returns Hiccup.
+The macro expands into a function which accepts optional hash of attributes and child components, and returns React element. It is available for Om, Rum and Reagent libraries. Each of them are in corresponding namespaces: `cljss.om/defstyled`, `cljss.rum/defstyled` and `cljss.reagent/defstyled`.
 
-A hash of attributes with dynamic CSS values as well as normal HTML attributes can be passed into underlying React component. Reading from attributes hash map can be done via anything that satisfies `cljs.core/ifn?` predicate (`Fn` and `IFn` protocols, and normal functions). It is recommended to use keywords.
+A hash of attributes with dynamic CSS values as well as normal HTML attributes can be passed into underlying React element. Reading from attributes hash map can be done via anything that satisfies `cljs.core/ifn?` predicate (`Fn` and `IFn` protocols, and normal functions). It is recommended to use keywords.
 
 ```clojure
 (defstyled h1 :h1
@@ -48,14 +63,31 @@ A hash of attributes with dynamic CSS values as well as normal HTML attributes c
    :color #(-> % :color {:light "#fff" :dark "#000"})})
 
 (h1 {:size "32px" :color :dark} "Hello, world!")
-;; [:h1 {:className "css-43697 vars-43697"} "Hello, world!"]
+;; (js/React.createElement "h1" #js {:className "css-43697 vars-43697"} "Hello, world!")
 ```
 
 ## Installation
 
-Add to project.clj: `[org.roman01la/cljss "1.2.0"]`
+Add to project.clj: `[org.roman01la/cljss "1.3.0"]`
 
 ## Usage
+
+`(defstyles name [args] styles)`
+
+- `name` name of a var
+- `[args]` arguments
+- `styles` a hash map of styles definition
+
+```clojure
+(ns example.core
+  (:require [cljss.core :refer [defstyles]]))
+
+(defstyles button [bg]
+  {:font-size "14px"
+   :background-color bg})
+
+[:div {:class (button "#fafafa")}]
+```
 
 `(defstyled name tag-name styles)`
 
@@ -67,7 +99,7 @@ Using [Sablono](https://github.com/r0man/sablono) templating for [React](https:/
 ```clojure
 (ns example.core
   (:require [sablono.core :refer [html]]
-            [cljss.core :refer [defstyled]]))
+            [cljss.rum :refer [defstyled]]))
 
 (defstyled Button :button
   {:padding "16px"
