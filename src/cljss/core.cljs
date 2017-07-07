@@ -10,7 +10,7 @@
   [cls static vars]
   (when-not (empty? static)
     (insert! sheet static))
-  (if (seq vars)
+  (if (pos? (count vars))
     (let [var-cls (str "vars-" (hash vars))]
       (insert! sheet (build-css var-cls vars))
       (str "css-" cls " " var-cls))
@@ -18,10 +18,10 @@
 
 (defn styled [tag cls static vars attrs]
   (fn [props & children]
-    (let [[props children] (if (map? props) [props children] [{} (into [props] children)])
-          varClass (->> vars (map (fn [[cls v]] (if (ifn? v) [cls (v props)] [cls v]))) (css cls static))
-          className (get props :className)
-          className (str (when className (str className " ")) varClass)
+    (let [[props children] (if (map? props) #js [props children] #js [{} (.concat #js [props] (to-array children))])
+          var-class (->> vars (map (fn [[cls v]] (if (ifn? v) #js [cls (v props)] #js [cls v]))) (css cls static))
+          className (:className props)
+          className (str (when className (str className " ")) var-class)
           props (assoc props :className className)
           props (apply dissoc props attrs)]
       (apply js/React.createElement tag (clj->js props) children))))

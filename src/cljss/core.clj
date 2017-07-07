@@ -59,12 +59,18 @@
         [id static vals] (build-styles styles)]
     [id static vals attrs]))
 
+(defn- vals->array [vals]
+  (let [arrseq (mapv (fn [[var val]] `(cljs.core/array ~var ~val)) vals)]
+    `(cljs.core/array ~@arrseq)))
+
 (defmacro defstyled
   "Takes var name, HTML tag name and a hash map of styles definition.
    Returns a var bound to the result of calling `cljss.core/styled`,
    which produces React element and injects styles."
   [var tag styles]
   (let [tag# (name tag)
-        [id# static# vals# attrs#] (->styled styles)]
+        [id# static# vals attrs] (->styled styles)
+        vals# (vals->array vals)
+        attrs# `(cljs.core/array ~@attrs)]
     `(def ~var
        (cljss.core/styled ~tag# ~id# ~static# ~vals# ~attrs#))))
