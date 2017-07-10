@@ -70,7 +70,7 @@
 (defmacro make-styled []
   '(defn styled [cls static vars attrs create-element]
     (fn [props & children]
-      (let [[props children] (if (map? props) (array props children) (array {} (.concat (array props) (to-array children))))
+      (let [[props children] (if (map? props) [props children] [{} (apply vector props children)])
             var-class (->> vars (map (fn [[cls v]] (if (ifn? v) (array cls (v props)) (array cls v)))) (cljss.core/css cls static))
             className (:className props)
             className (str (when className (str className " ")) var-class)
