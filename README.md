@@ -68,7 +68,7 @@ A hash of attributes with dynamic CSS values as well as normal HTML attributes c
 
 ## Installation
 
-Add to project.clj: `[org.roman01la/cljss "1.3.0"]`
+Add to project.clj: `[org.roman01la/cljss "1.3.1"]`
 
 ## Usage
 
