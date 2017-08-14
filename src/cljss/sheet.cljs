@@ -25,29 +25,31 @@
 
 
 (defprotocol ISheet
-  (insert! [this css])
+  (insert! [this css cls-name])
   (flush! [this]))
 
-(deftype Sheet [tag]
+(deftype Sheet [tag cls-names]
   ISheet
-  (insert! [this rule]
-    (let [sheet (find-sheet tag)
-          rules-count (gobj/get (gobj/get sheet "cssRules") "length")]
-      (if dev?
-        (if (not= (.indexOf rule "@import") -1)
-          (.insertBefore tag (dom/createTextNode rule) (gobj/get tag "firstChild"))
-          (dom/appendChild tag (dom/createTextNode rule)))
-        (try
-          (if (not= (.indexOf rule "@import") -1)
-            (.insertRule sheet rule 0)
-            (.insertRule sheet rule rules-count))
-          (catch :default e
-            (when dev?
-              (js/console.warn "Illegal CSS rule" rule)))))))
+  (insert! [this rule cls-name]
+    (when-not (@cls-names cls-name)
+      (swap! cls-names conj cls-name)
+      (let [sheet (find-sheet tag)
+            rules-count (gobj/get (gobj/get sheet "cssRules") "length")]
+        (if dev?
+         (if (not= (.indexOf rule "@import") -1)
+           (.insertBefore tag (dom/createTextNode rule) (gobj/get tag "firstChild"))
+           (dom/appendChild tag (dom/createTextNode rule)))
+         (try
+           (if (not= (.indexOf rule "@import") -1)
+             (.insertRule sheet rule 0)
+             (.insertRule sheet rule rules-count))
+           (catch :default e
+             (when dev?
+               (js/console.warn "Illegal CSS rule" rule))))))))
   (flush! [this]
     (-> tag
         .parentNode
         (.removeChild tag))))
 
 (defn create-sheet []
-  (Sheet. (make-style-tag)))
+  (Sheet. (make-style-tag) (atom #{})))
