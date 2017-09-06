@@ -7,7 +7,7 @@
   :min-lein-version "2.7.1"
 
   :dependencies [[org.clojure/clojure "1.8.0"]
-                 [org.clojure/clojurescript "1.9.671"]
+                 [org.clojure/clojurescript "1.9.908"]
                  [rum "0.10.8"]
                  [reagent "0.7.0"]
                  [org.omcljs/om "1.0.0-beta1"]]
