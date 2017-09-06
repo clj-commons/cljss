@@ -68,9 +68,22 @@ A hash of attributes with dynamic CSS values as well as normal HTML attributes c
 ;; (js/React.createElement "h1" #js {:className "css-43697 vars-43697"} "Hello, world!")
 ```
 
+### `:css` attribute
+
+`:css` attribute allows to define styles inline and still benefit from CSS-in-JS approach.
+
+_NOTE: This feature is supported only for Rum/Sablono elements_
+
+```clojure
+(def color "#000")
+
+[:button {:css {:color color}} "Button"]
+;; (js/React.createElement "button" #js {:className "css-43697 vars-43697"} "Button")
+```
+
 ## Installation
 
-Add to project.clj: `[org.roman01la/cljss "1.3.1"]`
+Add to project.clj: `[org.roman01la/cljss "1.4.0"]`
 
 ## Usage
 
