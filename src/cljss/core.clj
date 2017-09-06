@@ -23,7 +23,7 @@
                     (build-css cls))]
     [static vals (count vars)]))
 
-(defn- build-styles [styles]
+(defn build-styles [styles]
   (let [pseudo (filterv pseudo? styles)
         styles (filterv (comp not pseudo?) styles)
         id (-> styles hash str)
