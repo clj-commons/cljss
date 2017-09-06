@@ -13,6 +13,7 @@
 - [Installation](#installation)
 - [Usage](#usage)
 - [Production build](#production-build)
+- [Roadmap](#roadmap)
 - [License](#license)
 
 ## Why write CSS in ClojureScript?
@@ -132,6 +133,10 @@ Set `goog.DEBUG` to `false` to enable fast path styles injection.
 {:compiler
  {:closure-defines {"goog.DEBUG" false}}}
 ```
+
+## Roadmap
+- Media Queries syntax
+- Keyframe Animation syntax
 
 ## License
 
