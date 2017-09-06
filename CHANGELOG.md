@@ -1,3 +1,17 @@
+## 1.4.0
+- Cache inserted rules
+- Add experimental support for `:css` attribute
+
+## 1.3.1
+- Fix child elements rendering
+
+## 1.3.0
+- `defstyled` for Rum, Om and Reagent
+
+## 1.2.0
+- Enable debuggable styles in development (set via `goog.DEBUG`)
+- Remove static styles extraction into a file
+
 ## 1.1.0
 - Styled React components via `defstyled` macro
 
