@@ -14,6 +14,7 @@
 - [Usage](#usage)
 - [Production build](#production-build)
 - [Roadmap](#roadmap)
+- [Contributing](#contributing)
 - [License](#license)
 
 ## Why write CSS in ClojureScript?
@@ -137,6 +138,12 @@ Set `goog.DEBUG` to `false` to enable fast path styles injection.
 ## Roadmap
 - Media Queries syntax
 - Keyframe Animation syntax
+
+## Contributing
+- Pick an issue with `help wanted` label (make sure no one is working on it)
+- Stick to project's code style as much as possible
+- Make small commits with descriptive commit messages
+- Submit a PR with detailed description of what was done
 
 ## License
 
