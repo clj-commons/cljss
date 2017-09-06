@@ -15,9 +15,7 @@
    :text-align "center"
    :font "normal 18px sans-serif"})
 
-
 (def color (r/atom "#856dcf"))
-
 
 ;;; Rum
 (rumss/defstyled RumH1 :h1
@@ -27,7 +25,8 @@
    :margin-bottom :v-margin})
 
 (rum/defc RumTitle < rum/reactive []
-  [:div {:class (wrapper "8px")}
+  [:div {:class (wrapper "8px")
+         :css {:border-bottom (str "1px solid " @color)}}
    (RumH1 {:v-margin "8px"
            :color (rum/react color)}
           "Clojure Style Sheets for Rum")])
