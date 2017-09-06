@@ -3,6 +3,7 @@
             [goog.dom :as dom]))
 
 (def ^:private dev? ^boolean goog.DEBUG)
+(def ^:private limit 65534)
 
 (defn- make-style-tag []
   (let [tag (dom/createElement "style")
@@ -26,11 +27,14 @@
 
 (defprotocol ISheet
   (insert! [this css cls-name])
-  (flush! [this]))
+  (flush! [this])
+  (filled? [this]))
 
 (deftype Sheet [tag cls-names]
   ISheet
   (insert! [this rule cls-name]
+    (when (filled? this)
+      (throw (js/Error. (str "A stylesheet can only have " limit " rules"))))
     (when-not (@cls-names cls-name)
       (swap! cls-names conj cls-name)
       (let [sheet (find-sheet tag)
@@ -49,7 +53,9 @@
   (flush! [this]
     (-> tag
         .parentNode
-        (.removeChild tag))))
+        (.removeChild tag)))
+  (filled? [this]
+    (= (count @cls-names) limit)))
 
 (defn create-sheet []
   (Sheet. (make-style-tag) (atom #{})))
