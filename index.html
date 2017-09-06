@@ -153,7 +153,7 @@
       <a href="https://github.com/roman01la/cljss"><img src="logo.png" alt="" class="logo"></a>
       <h1><a href="https://github.com/roman01la/cljss">Clojure Style Sheets</a></h1>
       <p><small>CSS-in-JS for ClojureScript</small></p>
-      <p><small><code>[org.roman01la/cljss "1.3.1"]</code></small></p>
+      <p><small><code>[org.roman01la/cljss "1.4.0"]</code></small></p>
     </header>
     <main class="page-content">
       <div class="example">
@@ -171,7 +171,7 @@
       </div>
       <div class="example">
         <h2>Styled Elements</h2>
-        <p><small><small>(Om, Rum &amp; Reagent)</small></small></p>
+        <p><small><small>(Om, Rum/Sablono &amp; Reagent)</small></small></p>
         <div class="demo">
           <pre><code class="clojure hljs">(<span class="hljs-name">defstyled</span> Avatar <span class="hljs-symbol">:img</span>
   {<span class="hljs-symbol">:width</span> <span class="hljs-string">"96px"</span>
@@ -220,6 +220,18 @@
           <div class="avatar"></div>
         </div>
       </div>
+    <div class="example">
+        <h2>:css attribute</h2>
+        <p><small><small>(Rum/Sablono)</small></small></p>
+        <div class="demo">
+      <pre><code class="clojure hljs">(<span class="hljs-name"><span class="hljs-builtin-name">defn</span></span> Avatar [url]
+  [<span class="hljs-symbol">:img</span> {<span class="hljs-symbol">:src</span> url
+         <span class="hljs-symbol">:css</span> {<span class="hljs-symbol">:width</span> <span class="hljs-string">"96px"</span>
+               <span class="hljs-symbol">:height</span> <span class="hljs-string">"96px"</span>
+               <span class="hljs-symbol">:border-radius</span> <span class="hljs-string">"50%"</span>}}])</code></pre>
+            <div class="avatar"></div>
+        </div>
+    </div>
     </main>
     <footer class="page-footer">
       <p><a href="https://github.com/roman01la/cljss">GitHub</a></p>
