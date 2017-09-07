@@ -1,7 +1,7 @@
 (ns cljss.utils
   (:require [clojure.string :as cstr]))
 
-(defn- escape-val [rule val]
+(defn escape-val [rule val]
   (if (= rule :content)
     (pr-str val)
     val))
