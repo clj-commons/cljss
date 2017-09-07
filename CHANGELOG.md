@@ -1,3 +1,6 @@
+## 1.5.0
+- Add support for @keyframes based CSS animations via `defkeyframes` macro
+
 ## 1.4.0
 - Cache inserted rules
 - Add experimental support for `:css` attribute
