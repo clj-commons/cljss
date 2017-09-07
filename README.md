@@ -122,7 +122,7 @@ Using [Sablono](https://github.com/r0man/sablono) templating for [React](https:/
    :margin-bottom :v-margin})
 
 (html
-  (Button {:v-marging "8px"
+  (Button {:v-margin "8px"
            :on-click #(console.log "Click!")}))
 ```
 
