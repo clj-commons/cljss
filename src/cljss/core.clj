@@ -85,17 +85,17 @@
              props (apply dissoc props attrs)]
          (create-element props children)))))
 
-(defn- keyframes-styles [id idx styles]
+(defn- keyframes-styles [idx styles]
   (let [dynamic (filterv dynamic? styles)
         static (filterv (comp not dynamic?) styles)
         [vars idx]
         (reduce
-          (fn [[vars idx] ds]
-            [(conj vars (varid id idx ds))
+          (fn [[vars idx] [rule]]
+            [(conj vars [rule idx])
              (inc idx)])
           [[] idx]
           dynamic)
-        vals (mapv (fn [[_ var] [_ exp]] [var exp]) vars dynamic)
+        vals (mapv (fn [[_ var] [_ exp]] [(str "var(" var ")") exp]) vars dynamic)
         static (->> vars
                     (map (fn [[rule var]] [rule (str "var(" var ")")]))
                     (concat static)
@@ -112,24 +112,20 @@
     :else k))
 
 (defn- build-keyframes [keyframes]
-  (let [id (-> keyframes hash str)
-        [ks [statics vals]]
+  (let [[ks [statics vals]]
         (->> keyframes
              (reduce
                (fn [[ks [static vals idx]] [k styles]]
-                 (let [[s v idx] (keyframes-styles id idx styles)]
+                 (let [[s v idx] (keyframes-styles idx styles)]
                    [(conj ks (->ks-key k))
                     [(conj static s) (into vals v) idx]]))
                [[] [[] [] 1]]))]
-    [id
-     (->> (interleave ks statics)
-          (apply str)
-          (#(str "@keyframes animation-" id " {" % "}")))
+    [(->> (interleave ks statics)
+          (apply str))
      vals]))
 
 (defmacro defkeyframes
   "Takes var name, a vector of arguments and a hash map of CSS keyframes definition.
-  Generates CSS animation name, static and dynamic parts of keyframes.
   Returns a function that calls `cljss.core/css-keyframes` to inject styles at runtime\n
   and returns generated CSS animation name that can be used in CSS `animation` rule.
 
@@ -137,6 +133,6 @@
 
   (defstyled Spinner :div\n    {:animation (str (spin 0 180) \" 1s ease infinite\")})"
   [var args keyframes]
-  (let [[id# keyframes# vals#] (build-keyframes keyframes)]
+  (let [[keyframes# vals#] (build-keyframes keyframes)]
     `(defn ~var ~args
-       (cljss.core/css-keyframes ~id# ~keyframes# ~vals#))))
+       (cljss.core/css-keyframes ~keyframes# ~vals#))))

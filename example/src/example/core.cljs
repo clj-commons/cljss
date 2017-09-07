@@ -30,10 +30,14 @@
    :margin-top :v-margin
    :margin-bottom :v-margin})
 
-(rum/defc RumTitle < rum/reactive []
-  [:div {:class (str (wrapper "8px") " " (bounce 30))
-         :css {:border-bottom (str "1px solid " @color)
-               :animation (str (bounce 30) " 1s ease infinite")}}
+(rum/defcs RumTitle <
+  rum/reactive
+  (rum/local 30 ::state)
+  [{state ::state}]
+  [:div {:class (wrapper "8px")
+         :style {:animation (str (bounce @state) " 1s ease infinite")}
+         :css {:border-bottom (str "1px solid " @color)}
+         :on-click #(swap! state (partial * 2))}
    (RumH1 {:v-margin "8px"
            :color (rum/react color)}
           "Clojure Style Sheets for Rum")])

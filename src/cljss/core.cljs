@@ -1,6 +1,7 @@
 (ns cljss.core
   (:require [cljss.sheet :refer [create-sheet insert! filled?]]
-            [cljss.utils :refer [build-css]]))
+            [cljss.utils :refer [build-css]]
+            [clojure.string :as cstr]))
 
 (defonce ^:private sheets (atom (list (create-sheet))))
 
@@ -26,17 +27,18 @@
 (defn css-keyframes
   "Takes CSS animation name, static styles and dynamic styles.
    Injects styles and returns generated CSS animation name."
-  [cls static vars]
-  (let [css-cls (str "animation-" cls)
-        sheet (first @sheets)]
+  [static vars]
+  (let [sheet (first @sheets)]
     (if (filled? sheet)
       (do
         (swap! sheets conj (create-sheet))
-        (css-keyframes cls static vars))
-      (do
-        (when-not (empty? static)
-          (insert! sheet static css-cls))
-        (when (pos? (count vars))
-          (let [var-cls (str "animation-" (hash vars))]
-            (insert! sheet (build-css css-cls vars) var-cls)))
-        css-cls))))
+        (css-keyframes static vars))
+      (let [inner
+            (reduce
+              (fn [s [id val]] (cstr/replace s id val))
+              static
+              vars)
+            anim-name (str "animation-" (hash vars))
+            keyframes (str "@keyframes " anim-name "{" inner "}")]
+        (insert! sheet keyframes anim-name)
+        anim-name))))

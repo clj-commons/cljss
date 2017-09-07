@@ -1,3 +1,6 @@
+## 1.5.1
+- Generate @keyframes declaration at runtime to allow using CSS animations by providing only animation name
+
 ## 1.5.0
 - Add support for @keyframes based CSS animations via `defkeyframes` macro
 
