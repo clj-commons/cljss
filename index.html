@@ -134,6 +134,8 @@
       .avatar {
         width: 96px;
         height: 96px;
+        min-width: 96px;
+        min-height: 96px;
         border-radius: 50%;
         background: linear-gradient(135deg, #da3fb4, #448fe2);
       }
@@ -232,7 +234,11 @@
         <div class="demo">
   <pre><code class="clojure hljs">(<span class="hljs-name">defkeyframes</span> spin [from to]
   {<span class="hljs-symbol">:from</span> {<span class="hljs-symbol">:transform</span> (<span class="hljs-name"><span class="hljs-builtin-name">str</span></span> <span class="hljs-string">"rotate("</span> from <span class="hljs-string">"deg)"</span>)}
-   <span class="hljs-symbol">:to</span>   {<span class="hljs-symbol">:transform</span> (<span class="hljs-name"><span class="hljs-builtin-name">str</span></span> <span class="hljs-string">"rotate("</span> to <span class="hljs-string">"deg)"</span>)}})</code></pre>
+   <span class="hljs-symbol">:to</span>   {<span class="hljs-symbol">:transform</span> (<span class="hljs-name"><span class="hljs-builtin-name">str</span></span> <span class="hljs-string">"rotate("</span> to <span class="hljs-string">"deg)"</span>)}})
+
+(<span class="hljs-name">Avatar</span>
+  {<span class="hljs-symbol">:src</span> url <span class="hljs-symbol">
+   :animation</span> (<span class="hljs-name"><span class="hljs-builtin-name">str</span></span> (<span class="hljs-name">spin</span> <span class="hljs-number">0</span> <span class="hljs-number">360</span>) <span class="hljs-string">" 2s ease infinite"</span>)})</code></pre>
             <div class="avatar avatar-4 spin"></div>
         </div>
     </div>
