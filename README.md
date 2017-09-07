@@ -84,16 +84,15 @@ _NOTE: This feature is supported only for Rum/Sablono elements_
 
 ### `defkeyframes`
 
-`defkeyframes` macro expands into a function which accepts arbitrary number of arguments and returns a string that is both an animation name and a class name that refers to all CSS variables with dynamic values that corresponds to those arguments.
+`defkeyframes` macro expands into a function which accepts arbitrary number of arguments, injects @keyframes declaration and returns a string that is an animation name.
 
 ```clojure
 (defkeyframes spin [from to]
   {:from {:transform (str "rotate(" from "deg)")
    :to   {:transform (str "rotate(" to "deg)")}})
 
-[:div {:class (spin 0 180)
-       :style {:animation (str (spin 0 180) "500ms ease infinite")}}]
-;; (js/React.createElement "div" #js {:className "animation-43697"})
+[:div {:style {:animation (str (spin 0 180) "500ms ease infinite")}}]
+;; (js/React.createElement "div" #js {:style #js {:animation "animation-43697 500ms ease infinite"}})
 ```
 
 ## Installation
