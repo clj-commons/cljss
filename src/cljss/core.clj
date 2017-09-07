@@ -82,7 +82,13 @@
 (defn- keyframes-styles [id idx styles]
   (let [dynamic (filterv dynamic? styles)
         static (filterv (comp not dynamic?) styles)
-        vars (map-indexed #(varid id (+ idx %1) %2) dynamic)
+        [vars idx]
+        (reduce
+          (fn [[vars idx] ds]
+            [(conj vars (varid id idx ds))
+             (inc idx)])
+          [[] idx]
+          dynamic)
         vals (mapv (fn [[_ var] [_ exp]] [var exp]) vars dynamic)
         static (->> vars
                     (map (fn [[rule var]] [rule (str "var(" var ")")]))
@@ -90,7 +96,7 @@
                     (map (fn [[rule val]] (str (name rule) ":" (escape-val rule val) ";")))
                     (cstr/join "")
                     (#(str "{" % "}")))]
-    [static vals (count vars)]))
+    [static vals idx]))
 
 (defn- ->ks-key [k]
   (cond
@@ -110,7 +116,6 @@
                     [(conj static s) (into vals v) idx]]))
                [[] [[] [] 1]]))]
     [id
-     (str "animation-" id)
      (->> (interleave ks statics)
           (apply str)
           (#(str "@keyframes animation-" id " {" % "}")))
@@ -126,6 +131,13 @@
 
   (defstyled Spinner :div\n    {:animation (str (spin 0 180) \" 1s ease infinite\")})"
   [var args keyframes]
-  (let [[id# anim-name# keyframes# vals#] (build-keyframes keyframes)]
+  (let [[id# keyframes# vals#] (build-keyframes keyframes)]
     `(defn ~var ~args
-       (cljss.core/css-keyframes ~id# ~anim-name# ~keyframes# ~vals#))))
+       (cljss.core/css-keyframes ~id# ~keyframes# ~vals#))))
+
+(macroexpand
+  '(defkeyframes bounce [bounce-height]
+                 {[:from 20 53 80 :to] {:transform "translate3d(0,0,0)"}
+                  [40 43]              {:transform (str "translate3d(0,-" bounce-height "px,0)")}
+                  70                   {:transform (str "translate3d(0,-" (/ bounce-height 2) "px,0)")}
+                  90                   {:transform (str "translate3d(0,-" (/ bounce-height 4) "px,0)")}}))

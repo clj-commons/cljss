@@ -31,13 +31,12 @@
    :margin-bottom :v-margin})
 
 (rum/defc RumTitle < rum/reactive []
-  (let [[anim cls] (bounce 30)]
-    [:div {:class (str (wrapper "8px") " " cls)
-           :css {:border-bottom (str "1px solid " @color)
-                 :animation (str anim " 1s ease infinite")}}
-     (RumH1 {:v-margin "8px"
-             :color (rum/react color)}
-            "Clojure Style Sheets for Rum")]))
+  [:div {:class (str (wrapper "8px") " " (bounce 30))
+         :css {:border-bottom (str "1px solid " @color)
+               :animation (str (bounce 30) " 1s ease infinite")}}
+   (RumH1 {:v-margin "8px"
+           :color (rum/react color)}
+          "Clojure Style Sheets for Rum")])
 
 (rum/mount (RumTitle) (gdom/getElement "rum-app"))
 
