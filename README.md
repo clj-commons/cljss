@@ -29,7 +29,8 @@ Thease are some resources that can give you more context:
 
 ## Features
 - Automatic scoped styles by generating unique names
-- Supports CSS pseudo-classes and pseudo-elements
+- CSS pseudo-classes and pseudo-elements
+- CSS animations via `@keyframes` at-rule
 - Injects styles into `<style>` tag at run-time
 - Debuggable styles in development (set via `goog.DEBUG`)
 
@@ -81,9 +82,23 @@ _NOTE: This feature is supported only for Rum/Sablono elements_
 ;; (js/React.createElement "button" #js {:className "css-43697 vars-43697"} "Button")
 ```
 
+### `defkeyframes`
+
+`defkeyframes` macro expands into a function which accepts arbitrary number of arguments and returns a string that is both an animation name and a class name that refers to all CSS variables with dynamic values that corresponds to those arguments.
+
+```clojure
+(defkeyframes spin [from to]
+  {:from {:transform (str "rotate(" from "deg)")
+   :to   {:transform (str "rotate(" to "deg)")}})
+
+[:div {:class (spin 0 180)
+       :style {:animation (str (spin 0 180) "500ms ease infinite")}}]
+;; (js/React.createElement "div" #js {:className "animation-43697"})
+```
+
 ## Installation
 
-Add to project.clj: `[org.roman01la/cljss "1.4.0"]`
+Add to project.clj: `[org.roman01la/cljss "1.5.0"]`
 
 ## Usage
 
