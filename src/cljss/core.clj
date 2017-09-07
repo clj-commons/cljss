@@ -16,13 +16,19 @@
 (defn- collect-styles [cls id idx styles]
   (let [dynamic (filterv dynamic? styles)
         static (filterv (comp not dynamic?) styles)
-        vars (map-indexed #(varid id (+ idx %1) %2) dynamic)
+        [vars idx]
+        (reduce
+          (fn [[vars idx] ds]
+            [(conj vars (varid id idx ds))
+             (inc idx)])
+          [[] idx]
+          dynamic)
         vals (mapv (fn [[_ var] [_ exp]] [var exp]) vars dynamic)
         static (->> vars
                     (map (fn [[rule var]] [rule (str "var(" var ")")]))
                     (concat static)
                     (build-css cls))]
-    [static vals (count vars)]))
+    [static vals idx]))
 
 (defn build-styles [styles]
   (let [pseudo (filterv pseudo? styles)
@@ -134,10 +140,3 @@
   (let [[id# keyframes# vals#] (build-keyframes keyframes)]
     `(defn ~var ~args
        (cljss.core/css-keyframes ~id# ~keyframes# ~vals#))))
-
-(macroexpand
-  '(defkeyframes bounce [bounce-height]
-                 {[:from 20 53 80 :to] {:transform "translate3d(0,0,0)"}
-                  [40 43]              {:transform (str "translate3d(0,-" bounce-height "px,0)")}
-                  70                   {:transform (str "translate3d(0,-" (/ bounce-height 2) "px,0)")}
-                  90                   {:transform (str "translate3d(0,-" (/ bounce-height 4) "px,0)")}}))
