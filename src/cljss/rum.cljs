@@ -1,4 +1,4 @@
 (ns cljss.rum
-  (:require [cljss.core :refer [make-styled]]))
+  (:require [cljss.core :refer-macros [make-styled]]))
 
 (make-styled)

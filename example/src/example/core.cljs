@@ -5,9 +5,9 @@
             [om.next :as om :refer [defui]]
             [goog.dom :as gdom]
             [cljss.core :refer [defstyles defkeyframes]]
-            [cljss.reagent :as rss]
-            [cljss.rum :as rumss]
-            [cljss.om :as omss]))
+            [cljss.reagent :as rss :include-macros true]
+            [cljss.rum :as rumss :include-macros true]
+            [cljss.om :as omss :include-macros true]))
 
 (defkeyframes bounce [bounce-height]
   {[:from 20 53 80 :to] {:transform "translate3d(0,0,0)"}

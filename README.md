@@ -164,7 +164,6 @@ Set `goog.DEBUG` to `false` to enable fast path styles injection.
 
 ## Roadmap
 - Media Queries syntax
-- Keyframe Animation syntax
 - Server-side rendering
 
 ## Contributing
@@ -172,6 +171,18 @@ Set `goog.DEBUG` to `false` to enable fast path styles injection.
 - Stick to project's code style as much as possible
 - Make small commits with descriptive commit messages
 - Submit a PR with detailed description of what was done
+
+
+## Development
+
+A repl for the example project is provided via [lein-figwheel](https://github.com/bhauman/lein-figwheel).
+
+```
+$ cd example
+$ lein figwheel
+```
+
+If using emacs [cider](https://github.com/clojure-emacs/cider) - you can also launch the repl using `M-x cider-jack-in-clojurescript`.
 
 ## License
 
