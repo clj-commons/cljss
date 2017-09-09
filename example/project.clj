@@ -12,13 +12,15 @@
                  [reagent "0.7.0"]
                  [org.omcljs/om "1.0.0-beta1"]]
 
-  :plugins [[lein-cljsbuild "1.1.6" :exclusions [[org.clojure/clojure]]]]
+  :plugins [[lein-figwheel "0.5.13"]
+            [lein-cljsbuild "1.1.7" :exclusions [[org.clojure/clojure]]]]
 
   :source-paths ["src"]
 
   :cljsbuild {:builds
               [{:id "dev"
                 :source-paths ["src" "../src"]
+                :figwheel {:open-urls ["http://localhost:3450/index.html"]}
                 :compiler {:main example.core
                            :asset-path "js/compiled/out"
                            :output-to "resources/public/js/compiled/example.js"
@@ -33,9 +35,12 @@
                            :optimizations :advanced
                            :pretty-print false}}]}
 
+  :figwheel {:server-port 3450}
+
   :profiles {:dev {:dependencies [[binaryage/devtools "0.9.2"]
-                                  [com.cemerick/piggieback "0.2.1"]]
-                   :source-paths ["src"]
+                                  [figwheel-sidecar "0.5.13"]
+                                  [com.cemerick/piggieback "0.2.2"]]
+                   :source-paths ["src" "../src"]
                    :repl-options {:nrepl-middleware [cemerick.piggieback/wrap-cljs-repl]}
                    :clean-targets ^{:protect false} ["resources/public/js/compiled"
                                                      :target-path]}})
