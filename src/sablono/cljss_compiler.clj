@@ -19,9 +19,7 @@
         (->> (seq attrs)
              (reduce (fn [attrs [name value]]
                        (if (= name :css)
-                         (-> attrs
-                             (assoc :class (compile-class class value))
-                             (dissoc :css))
+                         (assoc attrs :class (compile-class class value))
                          (assoc attrs name (s/compile-attr name value))))
                      nil)
              (sutil/html-to-dom-attrs)
