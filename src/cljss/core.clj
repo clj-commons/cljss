@@ -68,21 +68,21 @@
    which produces React element and injects styles."
   [var tag styles]
   (let [tag (name tag)
-        [id static vals] (build-styles styles)
-        vals (vals->array vals)
-        attrs (->> styles (map second) (filterv keyword?))
-        attrs `(cljs.core/array ~@attrs)]
-    [tag id static vals attrs]))
+        [id static values] (build-styles styles)
+        values (vals->array values)
+        attrs (->> styles vals (filterv keyword?))]
+    [tag id static values attrs]))
 
 (defmacro make-styled []
   '(defn styled [cls static vars attrs create-element]
      (fn [props & children]
        (let [[props children] (if (map? props) [props children] [{} (apply vector props children)])
              var-class (->> vars (map (fn [[cls v]] (if (ifn? v) (array cls (v props)) (array cls v)))) (cljss.core/css cls static))
+             meta-attrs (->> vars (map second) (filter #(satisfies? IWithMeta %)) (map meta))
              className (:className props)
              className (str (when className (str className " ")) var-class)
              props (assoc props :className className)
-             props (apply dissoc props attrs)]
+             props (apply dissoc props (concat attrs meta-attrs))]
          (create-element props children)))))
 
 (defn- keyframes-styles [idx styles]
