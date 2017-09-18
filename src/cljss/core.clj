@@ -77,7 +77,17 @@
   '(defn styled [cls static vars attrs create-element]
      (fn [props & children]
        (let [[props children] (if (map? props) [props children] [{} (apply vector props children)])
-             var-class (->> vars (map (fn [[cls v]] (if (ifn? v) (array cls (v props)) (array cls v)))) (cljss.core/css cls static))
+             var-class (->> vars
+                            (map (fn [[cls v]]
+                                   (cond
+                                     (and (ifn? v) (satisfies? IWithMeta v))
+                                     (->> v meta list flatten (select-keys props) vals (apply v) (array cls))
+
+                                     (ifn? v)
+                                     (array cls (v props))
+
+                                     :else (array cls v))))
+                            (cljss.core/css cls static))
              meta-attrs (->> vars (map second) (filter #(satisfies? IWithMeta %)) (map meta) flatten set)
              className (:className props)
              className (str (when className (str className " ")) var-class)

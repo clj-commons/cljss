@@ -91,7 +91,7 @@
 (rss/defstyled Input :input
   {:border-radius "2px"
    :border "1px solid #ccc"
-   :padding (with-meta #(str (:padding-v %) " " (:padding-h %)) [:padding-v :padding-h])})
+   :padding (with-meta #(str %1 " " %2) [:padding-v :padding-h])})
 
 (defn App []
   [InputField
