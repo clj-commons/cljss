@@ -1,3 +1,6 @@
+## 1.5.2
+- Dissoc props in `defstyled` marked with `with-meta`
+
 ## 1.5.1
 - Generate @keyframes declaration at runtime to allow using CSS animations by providing only animation name
 
