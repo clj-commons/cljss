@@ -57,15 +57,27 @@ Dynamic styles are updated via CSS Variables (see [browser support](http://caniu
 
 The macro expands into a function which accepts optional hash of attributes and child components, and returns React element. It is available for Om, Rum and Reagent libraries. Each of them are in corresponding namespaces: `cljss.om/defstyled`, `cljss.rum/defstyled` and `cljss.reagent/defstyled`.
 
-A hash of attributes with dynamic CSS values as well as normal HTML attributes can be passed into underlying React element. Reading from attributes hash map can be done via anything that satisfies `cljs.core/ifn?` predicate (`Fn` and `IFn` protocols, and normal functions). It is recommended to use keywords.
+A hash of attributes with dynamic CSS values as well as normal HTML attributes can be passed into underlying React element. Reading from attributes hash map can be done via anything that satisfies `cljs.core/ifn?` predicate (`Fn` and `IFn` protocols, and normal functions).
+
+_NOTE: Dynamic props that used only to compute styles are also passed onto React element and thus result in adding an unknown attribute on a DOM node. To prevent this it is recommended to use keyword or a function marked with `with-meta` so the library can remove those props (see example below)._
+
+- keyword value — reads the value from props map and removes matching attribute
+- `with-meta` with a single keyword — passes a value of a specified attribute from props map into a function and removes matching attribute
+- `with-meta` with a collection of keywords — passes values of specified attributes from props map into a function in the order of these attributes and removes matching attributes 
 
 ```clojure
 (defstyled h1 :h1
   {:font-family "sans-serif"
-   :font-size :size
-   :color #(-> % :color {:light "#fff" :dark "#000"})})
+   :font-size :size ;; reads the value and removes custom `:size` attribute
+   :color (with-meta #(get {:light "#fff" :dark "#000"} %) :color)} ;; gets `:color` value and removes this attribute
+   :padding (with-meta #(str %1 " " %2) [:padding-v :padding-h])) ;; gets values of specified attrs as arguments and remove those attrs
 
-(h1 {:size "32px" :color :dark} "Hello, world!")
+(h1 {:size "32px" ;; custom attr
+     :color :dark ;; custom attr
+     :padding-v "8px" ;; custom attr
+     :padding-h "4px" ;; custom attr
+     :margin "8px 16px"} ;; normal CSS rule
+    "Hello, world!")
 ;; (js/React.createElement "h1" #js {:className "css-43697 vars-43697"} "Hello, world!")
 ```
 
@@ -97,7 +109,7 @@ _NOTE: This feature is supported only for Rum/Sablono elements_
 
 ## Installation
 
-Add to project.clj: `[org.roman01la/cljss "1.5.1"]`
+Add to project.clj: `[org.roman01la/cljss "1.5.2"]`
 
 ## Usage
 
