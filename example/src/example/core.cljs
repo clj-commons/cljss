@@ -91,12 +91,13 @@
 (rss/defstyled Input :input
   {:border-radius "2px"
    :border "1px solid #ccc"
-   :padding (with-meta #(str (:padding-v %) " " "8px") :padding-v)})
+   :padding (with-meta #(str (:padding-v %) " " (:padding-h %)) [:padding-v :padding-h])})
 
 (defn App []
   [InputField
    [InputLabel "text color"]
    [Input {:onChange #(reset! color (.. % -target -value))
-           :padding-v "4px"}]])
+           :padding-v "4px"
+           :padding-h "8px"}]])
 
 (r/render [App] (gdom/getElement "app"))

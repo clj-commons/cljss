@@ -78,7 +78,7 @@
      (fn [props & children]
        (let [[props children] (if (map? props) [props children] [{} (apply vector props children)])
              var-class (->> vars (map (fn [[cls v]] (if (ifn? v) (array cls (v props)) (array cls v)))) (cljss.core/css cls static))
-             meta-attrs (->> vars (map second) (filter #(satisfies? IWithMeta %)) (map meta))
+             meta-attrs (->> vars (map second) (filter #(satisfies? IWithMeta %)) (map meta) flatten set)
              className (:className props)
              className (str (when className (str className " ")) var-class)
              props (assoc props :className className)
