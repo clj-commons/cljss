@@ -28,7 +28,8 @@
   {:font-size "48px"
    :color :color
    :margin-top :v-margin
-   :margin-bottom :v-margin})
+   :margin-bottom :v-margin
+   :active? {:font-size "14px"}})
 
 (rum/defcs RumTitle <
   rum/reactive
@@ -39,7 +40,8 @@
          :css {:border-bottom (str "1px solid " @color)}
          :on-click #(swap! state (partial * 2))}
    (RumH1 {:v-margin "8px"
-           :color (rum/react color)}
+           :color (rum/react color)
+           :active? false}
           "Clojure Style Sheets for Rum")])
 
 (rum/mount (RumTitle) (gdom/getElement "rum-app"))

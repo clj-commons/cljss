@@ -13,6 +13,10 @@
   (and (re-matches #"&:.*" (name rule))
        (map? value)))
 
+(defn- status? [[rule value]]
+  (and (re-matches #"^.*\??" (name rule))
+       (map? value)))
+
 (defn- collect-styles [cls id idx styles]
   (let [dynamic (filterv dynamic? styles)
         static (filterv (comp not dynamic?) styles)
@@ -48,6 +52,31 @@
                   (into vals))]
     [id static vals]))
 
+(defn- ->status-styles [styles]
+  (let [status (filterv status? styles)
+        sprops (keys status)]
+    (->> status
+         (map (fn [[prop styles]]
+                (->> styles
+                     (map (fn [[rule value]] [rule prop value])))))
+         (mapcat identity)
+         (group-by first)
+         (map (fn [[rule states]]
+                (let [svals (map last states)
+                      args (mapv (fn [_] (gensym "var")) svals)]
+                  [rule
+                   `(with-meta
+                      (fn ~args
+                        (cond ~@(->> svals
+                                     (map-indexed (fn [idx value]
+                                                    [(nth args idx) value]))
+                                     (mapcat identity)
+                                     ((fn [coll] (concat coll [:else (get styles rule)]))))))
+                      ~(mapv second states))])))
+         (into {})
+         (merge styles)
+         (#(apply dissoc % sprops)))))
+
 (defmacro defstyles
   "Takes var name, a vector of arguments and a hash map of styles definition.
    Generates class name, static and dynamic parts of styles.
@@ -68,6 +97,7 @@
    which produces React element and injects styles."
   [tag styles]
   (let [tag (name tag)
+        styles (->status-styles styles)
         [id static values] (build-styles styles)
         values (vals->array values)
         attrs (->> styles vals (filterv keyword?))]
