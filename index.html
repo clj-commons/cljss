@@ -162,7 +162,7 @@
       <a href="https://github.com/roman01la/cljss"><img src="logo.png" alt="" class="logo"></a>
       <h1><a href="https://github.com/roman01la/cljss">Clojure Style Sheets</a></h1>
       <p><small>CSS-in-JS for ClojureScript</small></p>
-      <p><small><code>[org.roman01la/cljss "1.5.1"]</code></small></p>
+      <p><small><code>[org.roman01la/cljss "1.5.2"]</code></small></p>
     </header>
     <main class="page-content">
       <div class="example">
@@ -211,7 +211,7 @@
           <pre><code class="clojure hljs">(<span class="hljs-name">defstyled</span> Avatar <span class="hljs-symbol">:img</span>
   {<span class="hljs-symbol">:width</span> <span class="hljs-string">"96px"</span>
    <span class="hljs-symbol">:height</span> <span class="hljs-string">"96px"</span>
-   <span class="hljs-symbol">:border-radius</span> #(<span class="hljs-name"><span class="hljs-builtin-name">if</span></span> (<span class="hljs-symbol">:rounded?</span> %) <span class="hljs-string">"50%"</span> <span class="hljs-number">0</span>)})
+   <span class="hljs-symbol">:border-radius</span> (<span class="hljs-name"><span class="hljs-builtin-name">with-meta</span></span> #(<span class="hljs-name"><span class="hljs-builtin-name">if</span></span> % <span class="hljs-string">"50%"</span> <span class="hljs-string">"0"</span>) <span class="hljs-symbol">:rounded?</span>)})
 
 (<span class="hljs-name">Avatar</span> {<span class="hljs-symbol">:src</span> url <span class="hljs-symbol">:rounded?</span> <span class="hljs-literal">false</span>})</code></pre>
           <div class="avatar avatar-4"></div>
