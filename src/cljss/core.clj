@@ -66,7 +66,7 @@
   "Takes var name, HTML tag name and a hash map of styles definition.
    Returns a var bound to the result of calling `cljss.core/styled`,
    which produces React element and injects styles."
-  [var tag styles]
+  [tag styles]
   (let [tag (name tag)
         [id static values] (build-styles styles)
         values (vals->array values)
