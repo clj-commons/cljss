@@ -1,10 +1,12 @@
 (ns sablono.cljss-compiler
   (:require [sablono.compiler :as s]
             [sablono.util :as sutil]
-            [cljss.core :as cljss]))
+            [cljss.core :as cljss]
+            [cljss.utils :refer [empty-css?]]))
 
 (defn- compile-class [class styles]
-  (let [gen-class `(cljss.core/css ~@(cljss/build-styles styles))]
+  (let [[id atomic static vals] (cljss/build-styles styles)
+        gen-class `(cljss.core/css ~id ~atomic ~static ~vals ~(empty-css? static))]
     (if (seq class)
       `(apply str ~gen-class " " ~@(interpose " " class))
       gen-class)))

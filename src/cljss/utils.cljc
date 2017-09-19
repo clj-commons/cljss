@@ -11,3 +11,6 @@
        (map (fn [[rule val]] (str (name rule) ":" (escape-val rule val) ";")))
        (cstr/join "")
        (#(str "." cls "{" % "}"))))
+
+(defn empty-css? [css]
+  (->> css (re-matches #"^.*\{\}?") boolean))

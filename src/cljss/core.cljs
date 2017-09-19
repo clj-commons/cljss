@@ -5,24 +5,28 @@
 
 (defonce ^:private sheets (atom (list (create-sheet))))
 
-(defn css
-  "Takes class name, static styles and dynamic styles.
-   Injects styles and returns a string of generated class names."
-  [cls static vars]
-  (let [css-cls (str "css-" cls)
-        sheet (first @sheets)]
+(defn insert-css! [css cls]
+  (let [sheet (first @sheets)]
     (if (filled? sheet)
       (do
         (swap! sheets conj (create-sheet))
-        (css cls static vars))
-      (do
-        (when-not (empty? static)
-          (insert! sheet static css-cls))
-        (if (pos? (count vars))
-          (let [var-cls (str "vars-" (hash vars))]
-            (insert! sheet (build-css var-cls vars) var-cls)
-            (str css-cls " " var-cls))
-          css-cls)))))
+        (insert-css! cls css))
+      (insert! sheet css cls))))
+
+(defn css
+  "Takes class name, static styles and dynamic styles.
+   Injects styles and returns a string of generated class names."
+  [cls acls static vars empty-css?]
+  (let [scls (when (not empty-css?) (str "css-" cls))
+        aclss (when (seq acls) (cstr/join " " acls))
+        css-cls (->> [scls aclss] (cstr/join " ") cstr/trim)]
+    (when-not empty-css?
+      (insert-css! static css-cls))
+    (if (pos? (count vars))
+      (let [var-cls (str "vars-" (hash vars))]
+        (insert-css! (build-css var-cls vars) var-cls)
+        (str css-cls " " var-cls))
+      css-cls)))
 
 (defn css-keyframes
   "Takes CSS animation name, static styles and dynamic styles.
@@ -40,5 +44,5 @@
               vars)
             anim-name (str "animation-" (hash vars))
             keyframes (str "@keyframes " anim-name "{" inner "}")]
-        (insert! sheet keyframes anim-name)
+        (insert-css! keyframes anim-name)
         anim-name))))

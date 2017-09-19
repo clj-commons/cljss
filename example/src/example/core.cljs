@@ -1,4 +1,5 @@
 (ns example.core
+  (:require-macros [cljss.atomic :refer [insert-css!]])
   (:require [rum.core :as rum]
             [reagent.core :as r]
             [om.dom :as dom]
@@ -19,7 +20,10 @@
   {:padding-top v-padding
    :padding-bottom v-padding
    :text-align "center"
-   :font "normal 18px sans-serif"})
+   :font-weight "normal"
+   :font-size "18px"
+   :font-family "sans-serif"
+   :&:hover {:font-family "monospace"}})
 
 (def color (r/atom "#856dcf"))
 
@@ -88,7 +92,9 @@
    :align-items "center"})
 
 (rss/defstyled InputLabel :label
-  {:font "normal 14px sans-serif"})
+  {:font-weight "normal"
+   :font-size "14px"
+   :font-family "sans-serif"})
 
 (rss/defstyled Input :input
   {:border-radius "2px"
@@ -103,3 +109,5 @@
            :padding-h "8px"}]])
 
 (r/render [App] (gdom/getElement "app"))
+
+(insert-css!)

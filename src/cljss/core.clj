@@ -1,5 +1,6 @@
 (ns cljss.core
-  (:require [cljss.utils :refer [build-css escape-val]]
+  (:require [cljss.utils :refer [build-css escape-val empty-css?]]
+            [cljss.atomic :as a]
             [clojure.string :as cstr]))
 
 (defn- varid [id idx [rule]]
@@ -17,9 +18,10 @@
   (and (re-matches #"^.*\??" (name rule))
        (map? value)))
 
-(defn- collect-styles [cls id idx styles]
+(defn- collect-styles [cls id idx styles static?]
   (let [dynamic (filterv dynamic? styles)
         static (filterv (comp not dynamic?) styles)
+        atomic (mapv a/add-css-prop static)
         [vars idx]
         (reduce
           (fn [[vars idx] ds]
@@ -30,27 +32,29 @@
         vals (mapv (fn [[_ var] [_ exp]] [var exp]) vars dynamic)
         static (->> vars
                     (map (fn [[rule var]] [rule (str "var(" var ")")]))
-                    (concat static)
+                    (#(if static?
+                        (concat static %)
+                        %))
                     (build-css cls))]
-    [static vals idx]))
+    [static atomic vals idx]))
 
 (defn build-styles [styles]
   (let [pseudo (filterv pseudo? styles)
         styles (filterv (comp not pseudo?) styles)
         id (-> styles hash str)
         cls (str "css-" id)
-        [static vals idx] (collect-styles cls id 0 styles)
+        [static atomic vals idx] (collect-styles cls id 0 styles false)
         pstyles (->> pseudo
                      (map (fn [[rule styles]]
-                            (collect-styles (str cls (subs (name rule) 1)) id idx styles))))
+                            (collect-styles (str cls (subs (name rule) 1)) id idx styles true))))
         static (->> pstyles
                     (map first)
                     (apply str)
                     (str static))
         vals (->> pstyles
-                  (mapcat second)
+                  (mapcat #(nth % 2))
                   (into vals))]
-    [id static vals]))
+    [id atomic static vals]))
 
 (defn- ->status-styles [styles]
   (let [status (filterv status? styles)
@@ -83,9 +87,9 @@
    Returns a function that calls `cljss.core/css` to inject styles at runtime
    and returns generated class name."
   [var args styles]
-  (let [[id# static# vals#] (build-styles styles)]
+  (let [[id# atomic# static# vals#] (build-styles styles)]
     `(defn ~var ~args
-       (cljss.core/css ~id# ~static# ~vals#))))
+       (cljss.core/css ~id# ~atomic# ~static# ~vals# ~(empty-css? static#)))))
 
 (defn- vals->array [vals]
   (let [arrseq (mapv (fn [[var val]] `(cljs.core/array ~var ~val)) vals)]
@@ -98,13 +102,13 @@
   [tag styles]
   (let [tag (name tag)
         styles (->status-styles styles)
-        [id static values] (build-styles styles)
+        [id atomic static values] (build-styles styles)
         values (vals->array values)
         attrs (->> styles vals (filterv keyword?))]
-    [tag id static values attrs]))
+    [tag id atomic static (empty-css? static) values attrs]))
 
 (defmacro make-styled []
-  '(defn styled [cls static vars attrs create-element]
+  '(defn styled [cls acls static empty-css? vars attrs create-element]
      (fn [props & children]
        (let [[props children] (if (map? props) [props children] [{} (apply vector props children)])
              var-class (->> vars
@@ -117,7 +121,7 @@
                                      (array cls (v props))
 
                                      :else (array cls v))))
-                            (cljss.core/css cls static))
+                            (#(cljss.core/css cls acls static % empty-css?)))
              meta-attrs (->> vars (map second) (filter #(satisfies? IWithMeta %)) (map meta) flatten set)
              className (:className props)
              className (str (when className (str className " ")) var-class)
