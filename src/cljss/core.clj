@@ -14,7 +14,7 @@
        (map? value)))
 
 (defn- status? [[rule value]]
-  (and (re-matches #"^.*\??" (name rule))
+  (and (re-matches #"^.*\?$" (name rule))
        (map? value)))
 
 (defn- collect-styles [cls id idx styles]
