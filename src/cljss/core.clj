@@ -72,7 +72,7 @@
                                                     [(nth args idx) value]))
                                      (mapcat identity)
                                      ((fn [coll] (concat coll [:else (get styles rule)]))))))
-                      ~(mapv second states))])))
+                      (list ~@(mapv second states)))])))
          (into {})
          (merge styles)
          (#(apply dissoc % sprops)))))
@@ -85,7 +85,7 @@
   [var args styles]
   (let [[id# static# vals#] (build-styles styles)]
     `(defn ~var ~args
-       (cljss.core/css ~id# ~static# ~vals#))))
+       (cljss.core/css ~id# ~static# (cljs.core/array ~@(map (fn [v] `(cljs.core/array ~@v)) vals#))))))
 
 (defn- vals->array [vals]
   (let [arrseq (mapv (fn [[var val]] `(cljs.core/array ~var ~val)) vals)]
@@ -101,12 +101,14 @@
         [id static values] (build-styles styles)
         values (vals->array values)
         attrs (->> styles vals (filterv keyword?))]
-    [tag id static values attrs]))
+    [tag id static values `(cljs.core/array ~@attrs)]))
 
 (defmacro make-styled []
   '(defn styled [cls static vars attrs create-element]
      (fn [props & children]
-       (let [[props children] (if (map? props) [props children] [{} (apply vector props children)])
+       (let [[props children] (if (map? props)
+                                (array props children)
+                                (array {} (apply array props children)))
              var-class (->> vars
                             (map (fn [[cls v]]
                                    (cond
@@ -118,7 +120,12 @@
 
                                      :else (array cls v))))
                             (cljss.core/css cls static))
-             meta-attrs (->> vars (map second) (filter #(satisfies? IWithMeta %)) (map meta) flatten set)
+             meta-attrs (->> vars
+                             (map second)
+                             (filter #(satisfies? IWithMeta %))
+                             (map meta)
+                             flatten
+                             set)
              className (:className props)
              className (str (when className (str className " ")) var-class)
              props (assoc props :className className)
@@ -162,7 +169,7 @@
                [[] [[] [] 1]]))]
     [(->> (interleave ks statics)
           (apply str))
-     vals]))
+     `(cljs.core/array ~@(map (fn [v] `(cljs.core/array ~@v)) vals))]))
 
 (defmacro defkeyframes
   "Takes var name, a vector of arguments and a hash map of CSS keyframes definition.
