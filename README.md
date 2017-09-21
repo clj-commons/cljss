@@ -81,6 +81,25 @@ _NOTE: Dynamic props that used only to compute styles are also passed onto React
 ;; (js/React.createElement "h1" #js {:className "css-43697 vars-43697"} "Hello, world!")
 ```
 
+#### predicate attributes in `defstyled`
+
+Sometimes you want toggle between two values. In this example a menu item can switch between active and non-active styles using `:active?` attribute.
+```clojure
+(defstyled MenuItem :li
+  {:color (with-meta #(if % "black" "grey") :active?)})
+  
+(MenuItem {:active? true})
+```
+
+Because this pattern is so common there's a special treatment for predicate attributes (keywords ending with `?`) in styles definition.
+```clojure
+(defstyled MenuItem :li
+  {:color "grey"
+   :active? {:color "black"}})
+   
+(MenuItem {:active? true})
+```
+
 ### `:css` attribute
 
 `:css` attribute allows to define styles inline and still benefit from CSS-in-JS approach.
@@ -109,7 +128,7 @@ _NOTE: This feature is supported only for Rum/Sablono elements_
 
 ## Installation
 
-Add to project.clj: `[org.roman01la/cljss "1.5.2"]`
+Add to project.clj: `[org.roman01la/cljss "1.5.3"]`
 
 ## Usage
 
