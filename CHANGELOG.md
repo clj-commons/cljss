@@ -1,3 +1,10 @@
+## 1.5.4
+- Readable CSS class names (fully qualified symbol name)
+- Improved caching
+
+## 1.5.3
+- Add predicate attributes in styles definition (keywords with `?` last character)
+
 ## 1.5.2
 - Dissoc props in `defstyled` marked with `with-meta`
 
