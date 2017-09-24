@@ -63,7 +63,7 @@ _NOTE: Dynamic props that used only to compute styles are also passed onto React
 
 - keyword value — reads the value from props map and removes matching attribute
 - `with-meta` with a single keyword — passes a value of a specified attribute from props map into a function and removes matching attribute
-- `with-meta` with a collection of keywords — passes values of specified attributes from props map into a function in the order of these attributes and removes matching attributes 
+- `with-meta` with a collection of keywords — passes values of specified attributes from props map into a function in the order of these attributes and removes matching attributes
 
 ```clojure
 (defstyled h1 :h1
@@ -87,7 +87,7 @@ Sometimes you want toggle between two values. In this example a menu item can sw
 ```clojure
 (defstyled MenuItem :li
   {:color (with-meta #(if % "black" "grey") :active?)})
-  
+
 (MenuItem {:active? true})
 ```
 
@@ -96,7 +96,7 @@ Because this pattern is so common there's a special treatment for predicate attr
 (defstyled MenuItem :li
   {:color "grey"
    :active? {:color "black"}})
-   
+
 (MenuItem {:active? true})
 ```
 
@@ -128,7 +128,7 @@ _NOTE: This feature is supported only for Rum/Sablono elements_
 
 ## Installation
 
-Add to project.clj: `[org.roman01la/cljss "1.5.3"]`
+Add to project.clj: `[org.roman01la/cljss "1.5.4"]`
 
 ## Usage
 
