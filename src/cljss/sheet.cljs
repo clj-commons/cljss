@@ -19,13 +19,13 @@
   (flush! [this])
   (filled? [this]))
 
-(deftype Sheet [tag sheet cls-names]
+(deftype Sheet [tag sheet cache]
   ISheet
   (insert! [this rule cls-name]
     (when (filled? this)
       (throw (js/Error. (str "A stylesheet can only have " limit " rules"))))
-    (when-not (@cls-names cls-name)
-      (swap! cls-names conj cls-name)
+    (when-not (@cache cls-name)
+      (swap! cache conj cls-name)
       (let [rules-count (gobj/get (gobj/get sheet "cssRules") "length")]
         (if dev?
          (if (not= (.indexOf rule "@import") -1)
@@ -43,7 +43,7 @@
         .parentNode
         (.removeChild tag)))
   (filled? [this]
-    (= (count @cls-names) limit)))
+    (= (count @cache) limit)))
 
 (defn create-sheet []
   (let [tag (make-style-tag)
