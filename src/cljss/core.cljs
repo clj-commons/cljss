@@ -31,18 +31,18 @@
 (defn css-keyframes
   "Takes CSS animation name, static styles and dynamic styles.
    Injects styles and returns generated CSS animation name."
-  [static vars]
+  [cls static vars]
   (let [sheet (first @sheets)]
     (if (filled? sheet)
       (do
         (swap! sheets conj (create-sheet))
-        (css-keyframes static vars))
+        (css-keyframes cls static vars))
       (let [inner
             (reduce
               (fn [s [id val]] (cstr/replace s id val))
               static
               vars)
-            anim-name (str "animation-" (hash vars))
+            anim-name (str "animation-" cls "-" (hash vars))
             keyframes (str "@keyframes " anim-name "{" inner "}")]
         (insert! sheet keyframes anim-name)
         anim-name))))

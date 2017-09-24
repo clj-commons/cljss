@@ -182,6 +182,7 @@
 
   (defstyled Spinner :div\n    {:animation (str (spin 0 180) \" 1s ease infinite\")})"
   [var args keyframes]
-  (let [[keyframes# vals#] (build-keyframes keyframes)]
+  (let [cls# (var->cls-name var)
+        [keyframes# vals#] (build-keyframes keyframes)]
     `(defn ~var ~args
-       (cljss.core/css-keyframes ~keyframes# ~vals#))))
+       (cljss.core/css-keyframes ~cls# ~keyframes# ~vals#))))
