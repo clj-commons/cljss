@@ -28,13 +28,9 @@
       (swap! cache conj cls-name)
       (let [rules-count (gobj/get (gobj/get sheet "cssRules") "length")]
         (if dev?
-         (if (not= (.indexOf rule "@import") -1)
-           (.insertBefore tag (dom/createTextNode rule) (gobj/get tag "firstChild"))
-           (dom/appendChild tag (dom/createTextNode rule)))
+         (dom/appendChild tag (dom/createTextNode rule))
          (try
-           (if (not= (.indexOf rule "@import") -1)
-             (.insertRule sheet rule 0)
-             (.insertRule sheet rule rules-count))
+           (.insertRule sheet rule rules-count)
            (catch :default e
              (when dev?
                (js/console.warn "Illegal CSS rule" rule))))))))
