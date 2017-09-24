@@ -4,6 +4,8 @@
             [clojure.string :as cstr]))
 
 (defonce ^:private sheets (atom (list (create-sheet))))
+(defonce ^:private *id* (atom 0))
+(defonce ^:private cache (atom {}))
 
 (defn css
   "Takes class name, static styles and dynamic styles.
@@ -18,9 +20,12 @@
         (when-not (empty? static)
           (insert! sheet static cls))
         (if (pos? (count vars))
-          (let [var-cls (str "vars-" (hash vars))]
-            (insert! sheet (build-css var-cls vars) var-cls)
-            (str cls " " var-cls))
+          (if-let [var-cls (get @cache vars)]
+            (str cls " " var-cls)
+            (let [var-cls (str "vars-" (swap! *id* inc))]
+              (insert! sheet (build-css var-cls vars) var-cls)
+              (swap! cache assoc vars var-cls)
+              (str cls " " var-cls)))
           cls)))))
 
 (defn css-keyframes

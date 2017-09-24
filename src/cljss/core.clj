@@ -87,7 +87,7 @@
   (let [cls-name# (var->cls-name var)
         [static# vals#] (build-styles cls-name# styles)]
     `(defn ~var ~args
-       (cljss.core/css ~cls-name# ~static# (cljs.core/array ~@(map (fn [v] `(cljs.core/array ~@v)) vals#))))))
+       (cljss.core/css ~cls-name# ~static# ~vals#))))
 
 (defn- vals->array [vals]
   (let [arrseq (mapv (fn [[var val]] `(cljs.core/array ~var ~val)) vals)]
@@ -115,12 +115,12 @@
                             (map (fn [[cls v]]
                                    (cond
                                      (and (ifn? v) (satisfies? IWithMeta v))
-                                     (->> v meta list flatten (select-keys props) vals (apply v) (array cls))
+                                     (->> v meta list flatten (select-keys props) vals (apply v) (list cls))
 
                                      (ifn? v)
-                                     (array cls (v props))
+                                     (list cls (v props))
 
-                                     :else (array cls v))))
+                                     :else (list cls v))))
                             (cljss.core/css cls static))
              meta-attrs (->> vars
                              (map second)
