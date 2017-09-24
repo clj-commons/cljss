@@ -4,7 +4,8 @@
             [cljss.core :as cljss]))
 
 (defn- compile-class [class styles]
-  (let [gen-class `(cljss.core/css ~@(cljss/build-styles styles))]
+  (let [cls (str "css-" (hash styles))
+        gen-class `(cljss.core/css ~cls ~@(cljss/build-styles cls styles))]
     (if (seq class)
       `(apply str ~gen-class " " ~@(interpose " " class))
       gen-class)))

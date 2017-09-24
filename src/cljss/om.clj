@@ -1,8 +1,9 @@
 (ns cljss.om
-  (:require [cljss.core :refer [->styled]]))
+  (:require [cljss.core :refer [->styled var->cls-name]]))
 
 (defmacro defstyled [var tag styles]
-  (let [[tag# id# static# vals# attrs#] (->styled tag styles)
+  (let [cls-name# (var->cls-name var)
+        [tag# static# vals# attrs#] (->styled tag styles cls-name#)
         create-element# `#(apply js/React.createElement ~tag# (cljs.core/clj->js %1) %2)]
     `(def ~var
-       (cljss.om/styled ~id# ~static# ~vals# ~attrs# ~create-element#))))
+       (cljss.om/styled ~cls-name# ~static# ~vals# ~attrs# ~create-element#))))

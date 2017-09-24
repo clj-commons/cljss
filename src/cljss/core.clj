@@ -2,8 +2,8 @@
   (:require [cljss.utils :refer [build-css escape-val]]
             [clojure.string :as cstr]))
 
-(defn- varid [id idx [rule]]
-  [rule (str "--css-" id "-" idx)])
+(defn- varid [cls idx [rule]]
+  [rule (str "--var-" cls "-" idx)])
 
 (defn- dynamic? [[_ value]]
   (not (or (string? value)
@@ -17,13 +17,13 @@
   (and (re-matches #"^.*\?$" (name rule))
        (map? value)))
 
-(defn- collect-styles [cls id idx styles]
+(defn- collect-styles [cls idx styles]
   (let [dynamic (filterv dynamic? styles)
         static (filterv (comp not dynamic?) styles)
         [vars idx]
         (reduce
           (fn [[vars idx] ds]
-            [(conj vars (varid id idx ds))
+            [(conj vars (varid cls idx ds))
              (inc idx)])
           [[] idx]
           dynamic)
@@ -34,15 +34,13 @@
                     (build-css cls))]
     [static vals idx]))
 
-(defn build-styles [styles]
+(defn build-styles [cls styles]
   (let [pseudo (filterv pseudo? styles)
         styles (filterv (comp not pseudo?) styles)
-        id (-> styles hash str)
-        cls (str "css-" id)
-        [static vals idx] (collect-styles cls id 0 styles)
+        [static vals idx] (collect-styles cls 0 styles)
         pstyles (->> pseudo
                      (map (fn [[rule styles]]
-                            (collect-styles (str cls (subs (name rule) 1)) id idx styles))))
+                            (collect-styles (str cls (subs (name rule) 1)) idx styles))))
         static (->> pstyles
                     (map first)
                     (apply str)
@@ -50,7 +48,7 @@
         vals (->> pstyles
                   (mapcat second)
                   (into vals))]
-    [id static vals]))
+    [static vals]))
 
 (defn- ->status-styles [styles]
   (let [status (filterv status? styles)
@@ -77,15 +75,19 @@
          (merge styles)
          (#(apply dissoc % sprops)))))
 
+(defmacro var->cls-name [sym]
+  `(-> ~'&env :ns :name (clojure.core/str "/" ~sym) (clojure.string/replace "." "_") (clojure.string/replace "/" "__")))
+
 (defmacro defstyles
   "Takes var name, a vector of arguments and a hash map of styles definition.
    Generates class name, static and dynamic parts of styles.
    Returns a function that calls `cljss.core/css` to inject styles at runtime
    and returns generated class name."
   [var args styles]
-  (let [[id# static# vals#] (build-styles styles)]
+  (let [cls-name# (var->cls-name var)
+        [static# vals#] (build-styles cls-name# styles)]
     `(defn ~var ~args
-       (cljss.core/css ~id# ~static# (cljs.core/array ~@(map (fn [v] `(cljs.core/array ~@v)) vals#))))))
+       (cljss.core/css ~cls-name# ~static# (cljs.core/array ~@(map (fn [v] `(cljs.core/array ~@v)) vals#))))))
 
 (defn- vals->array [vals]
   (let [arrseq (mapv (fn [[var val]] `(cljs.core/array ~var ~val)) vals)]
@@ -95,13 +97,13 @@
   "Takes var name, HTML tag name and a hash map of styles definition.
    Returns a var bound to the result of calling `cljss.core/styled`,
    which produces React element and injects styles."
-  [tag styles]
+  [tag styles cls]
   (let [tag (name tag)
         styles (->status-styles styles)
-        [id static values] (build-styles styles)
+        [static values] (build-styles cls styles)
         values (vals->array values)
         attrs (->> styles vals (filterv keyword?))]
-    [tag id static values `(cljs.core/array ~@attrs)]))
+    [tag static values `(cljs.core/array ~@attrs)]))
 
 (defmacro make-styled []
   '(defn styled [cls static vars attrs create-element]
