@@ -33,6 +33,8 @@
                 :compiler {:output-to "resources/public/js/compiled/example.js"
                            :main example.core
                            :optimizations :advanced
+                           :closure-defines {"goog.DEBUG" false}
+                           :verbose true
                            :pretty-print false}}]}
 
   :figwheel {:server-port 3450}
