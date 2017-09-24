@@ -13,32 +13,20 @@
     (dom/appendChild head tag)
     tag))
 
-(defn- find-sheet [tag]
-  (if-let [sheet (gobj/get tag "sheet")]
-    sheet
-    ;; workaround for Firefox
-    (let [sheets (gobj/get js/document "styleSheets")]
-      (loop [idx 0
-             sheet (aget sheets idx)]
-        (if (= tag (gobj/get sheet "ownerNode"))
-          sheet
-          (recur (inc idx) (aget sheets (inc idx))))))))
-
 
 (defprotocol ISheet
   (insert! [this css cls-name])
   (flush! [this])
   (filled? [this]))
 
-(deftype Sheet [tag cls-names]
+(deftype Sheet [tag sheet cls-names]
   ISheet
   (insert! [this rule cls-name]
     (when (filled? this)
       (throw (js/Error. (str "A stylesheet can only have " limit " rules"))))
     (when-not (@cls-names cls-name)
       (swap! cls-names conj cls-name)
-      (let [sheet (find-sheet tag)
-            rules-count (gobj/get (gobj/get sheet "cssRules") "length")]
+      (let [rules-count (gobj/get (gobj/get sheet "cssRules") "length")]
         (if dev?
          (if (not= (.indexOf rule "@import") -1)
            (.insertBefore tag (dom/createTextNode rule) (gobj/get tag "firstChild"))
@@ -58,4 +46,6 @@
     (= (count @cls-names) limit)))
 
 (defn create-sheet []
-  (Sheet. (make-style-tag) (atom #{})))
+  (let [tag (make-style-tag)
+        sheet (gobj/get tag "sheet")]
+    (Sheet. tag sheet (atom #{}))))
