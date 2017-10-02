@@ -24,9 +24,16 @@ jobs:
 
       - run: lein deps
 
+      - run:
+          name: Install 'phantomjs'
+          command: |
+            sudo curl --output /tmp/phantomjs https://s3.amazonaws.com/circle-downloads/phantomjs-2.1.1
+            sudo chmod ugo+x /tmp/phantomjs
+            sudo ln -sf /tmp/phantomjs /usr/local/bin/phantomjs
+
       - save_cache:
           paths:
             - ~/.m2
           key: v1-dependencies-{{ checksum "project.clj" }}
         
-      - run: lein test
+      - run: lein test-all
