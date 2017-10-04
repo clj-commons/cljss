@@ -44,8 +44,6 @@
            :active? false}
           "Clojure Style Sheets for Rum")])
 
-(rum/mount (RumTitle) (gdom/getElement "rum-app"))
-
 
 ;; Reagent
 (rss/defstyled ReagentH1 :h1
@@ -58,8 +56,6 @@
   [:div {:class (wrapper "8px")}
    [ReagentH1 {:v-margin "8px" :color @color}
     "Clojure Style Sheets for Reagent"]])
-
-(r/render [ReagentTitle] (gdom/getElement "reagent-app"))
 
 
 ;; Om
@@ -76,8 +72,6 @@
       (OmH1 {:v-margin "8px"
              :color @color}
             "Clojure Style Sheets for Om"))))
-
-(om/add-root! (om/reconciler {:state color}) OmTitle (gdom/getElement "om-app"))
 
 
 
@@ -102,4 +96,10 @@
            :padding-v "4px"
            :padding-h "8px"}]])
 
-(r/render [App] (gdom/getElement "app"))
+(defn mount []
+  (rum/mount (RumTitle) (gdom/getElement "rum-app"))
+  (r/render [ReagentTitle] (gdom/getElement "reagent-app"))
+  (om/add-root! (om/reconciler {:state color}) OmTitle (gdom/getElement "om-app"))
+  (r/render [App] (gdom/getElement "app")))
+
+(mount)

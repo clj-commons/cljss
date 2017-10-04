@@ -1,24 +1,30 @@
 (ns cljss.core
   (:require [cljss.sheet :refer [create-sheet insert! filled?]]
-            [cljss.utils :refer [build-css]]
+            [cljss.utils :refer [build-css dev?]]
             [clojure.string :as cstr]))
 
 (defonce ^:private sheets (atom (list (create-sheet))))
 (defonce ^:private *id* (atom 0))
 (defonce ^:private cache (atom {}))
 
+(defn- with-cache-busting [clsn cls static]
+  (cstr/replace static (str "." clsn) (str "." cls)))
+
 (defn css
   "Takes class name, static styles and dynamic styles.
    Injects styles and returns a string of generated class names."
-  [cls static vars]
-  (let [sheet (first @sheets)]
+  [clsn static vars]
+  (let [sheet (first @sheets)
+        cls (if-not dev? clsn (str clsn "-" (swap! *id* inc)))]
     (if (filled? sheet)
       (do
         (swap! sheets conj (create-sheet))
         (css cls static vars))
       (do
         (when-not (empty? static)
-          (insert! sheet static cls))
+          (if dev?
+            (insert! sheet (with-cache-busting clsn cls static) cls)
+            (insert! sheet static cls)))
         (if (pos? (count vars))
           (if-let [var-cls (get @cache vars)]
             (str cls " " var-cls)

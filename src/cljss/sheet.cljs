@@ -1,8 +1,8 @@
 (ns cljss.sheet
   (:require [goog.object :as gobj]
-            [goog.dom :as dom]))
+            [goog.dom :as dom]
+            [cljss.utils :refer [dev?]]))
 
-(def ^:private dev? ^boolean goog.DEBUG)
 (def ^:private limit 65534)
 
 (defn- make-style-tag []

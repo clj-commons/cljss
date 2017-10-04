@@ -20,7 +20,8 @@
   :cljsbuild {:builds
               [{:id "dev"
                 :source-paths ["src" "../src"]
-                :figwheel {:open-urls ["http://localhost:3450/index.html"]}
+                :figwheel {:on-jsload example.core/mount
+                           :open-urls ["http://localhost:3450/index.html"]}
                 :compiler {:main example.core
                            :asset-path "js/compiled/out"
                            :output-to "resources/public/js/compiled/example.js"

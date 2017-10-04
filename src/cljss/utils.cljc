@@ -1,6 +1,8 @@
 (ns cljss.utils
   (:require [clojure.string :as cstr]))
 
+#?(:cljs (def dev? ^boolean goog.DEBUG))
+
 (defn escape-val [rule val]
   (if (= rule :content)
     (pr-str val)
