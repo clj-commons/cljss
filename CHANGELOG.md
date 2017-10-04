@@ -1,3 +1,6 @@
+## 1.5.5
+- Add cache busting helper for development with Figwheel
+
 ## 1.5.4
 - Readable CSS class names (fully qualified symbol name)
 - Improved caching
