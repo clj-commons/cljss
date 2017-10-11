@@ -1,6 +1,7 @@
 (ns cljss.core
   (:require [cljss.utils :refer [build-css escape-val]]
-            [clojure.string :as cstr]))
+            [clojure.string :as cstr]
+            [sablono.cljss-compiler]))
 
 (defn- varid [cls idx [rule]]
   [rule (str "--var-" cls "-" idx)])
