@@ -38,6 +38,7 @@ Thease are some resources that can give you more context:
 - CSS animations via `@keyframes` at-rule
 - Injects styles into `<style>` tag at run-time
 - Debuggable styles in development (set via `goog.DEBUG`)
+- Fast, 10000 insertions in ~200ms
 
 ## How it works
 
