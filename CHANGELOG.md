@@ -1,3 +1,6 @@
+## 1.5.6
+- Add support for `defstyled` for Prum
+
 ## 1.5.5
 - Add cache busting helper for development with Figwheel
 
