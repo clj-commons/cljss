@@ -4,10 +4,18 @@
             [om.dom :as dom]
             [om.next :as om :refer [defui]]
             [goog.dom :as gdom]
-            [cljss.core :refer [defstyles defkeyframes font-face]]
+            [cljss.core :refer [defstyles defkeyframes font-face inject-global]]
             [cljss.reagent :as rss :include-macros true]
             [cljss.rum :as rumss :include-macros true]
             [cljss.om :as omss :include-macros true]))
+
+(def font-size 16)
+
+(inject-global
+  {:body {:margin 0
+          :font (str "normal " font-size "px sans-serif")
+          :color "#242424"}
+   "#app label" {:color "red"}})
 
 (def font-name "Example Font")
 (def font-url "examplefont")

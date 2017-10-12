@@ -1,5 +1,5 @@
 (ns cljss.font-face
-  (:require [clojure.string :as cstr]))
+  (:require [cljss.utils :refer [literal? compile-css-rule reduce-str]]))
 
 (defn- compile-src [m]
   (->> m
@@ -32,28 +32,6 @@
         (interpose ", ")
         (mapcat identity)
         (into []))])
-
-(defn- compile-css-rule [[rule val]]
-  (let [r [(str (name rule) ":")]
-        r (if (vector? val)
-            (into r val)
-            (conj r val))]
-    (conj r ";")))
-
-(defn- literal? [x]
-  (or (string? x) (number? x)))
-
-(defn- reduce-str [s]
-  (->> s
-       (reduce
-         (fn [s s1]
-           (let [s0 (first s)
-                 srest (rest s)]
-             (if (and (literal? s1) (string? s0))
-               (cons (str s0 s1) srest)
-               (cons s1 s))))
-         (list ""))
-       reverse))
 
 (defn font-face [descriptors]
   (let [s (->> descriptors

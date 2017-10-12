@@ -1,7 +1,8 @@
 (ns cljss.core-test
   (:require [clojure.test :refer :all]
             [cljss.core :refer :all]
-            [cljss.font-face :as ff]))
+            [cljss.font-face :as ff]
+            [cljss.inject-global :as ig]))
 
 (def basic-styles {:color "red"})
 
@@ -93,3 +94,14 @@
                           :src           [{:local "Arial"}
                                           {:url    '(str "examplefont" ".woff")
                                            :format "woff"}]})))))
+
+(deftest test-inject-global
+  (testing "build global styles"
+    (is (=
+          '(["body" "body{margin:0;}"]
+            ["ul" "ul{list-style:none;color:red;}"]
+            ["body > .app" (cljs.core/str "body > .app" "{" "border:" (str "1px solid" color) ";" "}")])
+          (ig/inject-global {:body         {:margin 0}
+                             :ul           {:list-style "none"
+                                            :color      "red"}
+                             "body > .app" {:border '(str "1px solid" color)}})))))

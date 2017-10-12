@@ -1,3 +1,6 @@
+## 1.5.11
+- Add `inject-global` macro
+
 ## 1.5.10
 - Improved `font-face` macro, allow to have arbitrary expressions in `@font-face` directives
 

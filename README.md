@@ -7,9 +7,7 @@
 [![Clojars](https://img.shields.io/clojars/v/org.roman01la/cljss.svg)](https://clojars.org/org.roman01la/cljss)
 [![CircleCI](https://circleci.com/gh/roman01la/cljss.svg?style=svg)](https://circleci.com/gh/roman01la/cljss)
 
-<a href="https://www.patreon.com/bePatron?c=1239559">
-  <img src="https://c5.patreon.com/external/logo/become_a_patron_button.png" height="40px" />
-</a>
+
 
 ## Table of Contents
 - [Why write CSS in ClojureScript?](#why-write-css-in-clojurescript)
@@ -132,9 +130,46 @@ _NOTE: This feature is supported only for Rum/Sablono elements_
 ;; (js/React.createElement "div" #js {:style #js {:animation "animation-43697 500ms ease infinite"}})
 ```
 
+### `font-face`
+
+`font-face` macro allows to define custom fonts via `@font-face` CSS at-rule. The macro generates CSS string and injects it at runtime. The syntax is defined in example below.
+
+```clojure
+(require '[cljss.core :refer [font-face]])
+
+(def path "https://fonts.gstatic.com/s/patrickhandsc/v4/OYFWCgfCR-7uHIovjUZXsZ71Uis0Qeb9Gqo8IZV7ckE")
+
+(font-face
+  {:font-family "Patrick Hand SC"
+   :font-style "normal"
+   :font-weight 400
+   :src [{:local "Patrick Hand SC"}
+         {:local "PatrickHandSC-Regular"}
+         {:url (str path ".woff2")
+          :format "woff2"}
+         {:url (str path ".otf")
+          :format "opentype"}]
+   :unicode-range ["U+0100-024F" "U+1E00-1EFF"]})
+```
+
+### `inject-global`
+
+`inject-global` macro allows to defined global styles, such as to reset user agent default styles. The macro generates CSS string and injects it at runtime. The syntax is defined in example below.
+
+```clojure
+(require '[cljss.core :refer [inject-global]])
+
+(def v-margin 4)
+
+(inject-global
+  {:body     {:margin 0}
+   :ul       {:list-style "none"}
+   "ul > li" {:margin (str v-margin "px 0")}})
+```
+
 ## Installation
 
-Add to project.clj: `[org.roman01la/cljss "1.5.10"]`
+Add to project.clj: `[org.roman01la/cljss "1.5.11"]`
 
 ## Usage
 

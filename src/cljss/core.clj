@@ -1,6 +1,7 @@
 (ns cljss.core
   (:require [cljss.utils :refer [build-css escape-val]]
             [cljss.font-face :as ff]
+            [cljss.inject-global :as ig]
             [clojure.string :as cstr]))
 
 (defn- varid [cls idx [rule]]
@@ -195,3 +196,10 @@
   (let [css# (ff/font-face descriptors)
         cls# (hash css#)]
     `(cljss.core/css ~cls# ~css# [])))
+
+(defmacro inject-global
+  "Takes a hash of global styles definitions and produces CSS string.
+  Returns a sequence of calls to inject styles at runtime."
+  [css]
+  (let [css (ig/inject-global css)]
+    `(do ~@(->> css (map (fn [[cls# css#]] `(cljss.core/css ~cls# ~css# [])))))))
