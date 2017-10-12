@@ -2,7 +2,7 @@
   :description "FIXME: write this!"
   :url "http://example.com/FIXME"
   :license {:name "Eclipse Public License"
-            :url "http://www.eclipse.org/legal/epl-v10.html"}
+            :url  "http://www.eclipse.org/legal/epl-v10.html"}
 
   :min-lein-version "2.7.1"
 
@@ -10,40 +10,49 @@
                  [org.clojure/clojurescript "1.9.908"]
                  [rum "0.10.8"]
                  [reagent "0.7.0"]
-                 [org.omcljs/om "1.0.0-beta1"]]
+                 [org.omcljs/om "1.0.0-beta1"]
+                 [org.roman01la/prum "0.10.8-7"]]
 
   :plugins [[lein-figwheel "0.5.13"]
             [lein-cljsbuild "1.1.7" :exclusions [[org.clojure/clojure]]]]
 
-  :source-paths ["src"]
+  :source-paths ["src" "../src"]
 
   :cljsbuild {:builds
-              [{:id "dev"
+              [{:id           "dev"
                 :source-paths ["src" "../src"]
-                :figwheel {:on-jsload example.core/mount
-                           :open-urls ["http://localhost:3450/index.html"]}
-                :compiler {:main example.core
-                           :asset-path "js/compiled/out"
-                           :output-to "resources/public/js/compiled/example.js"
-                           :output-dir "resources/public/js/compiled/out"
-                           :source-map-timestamp true
-                           :preloads [devtools.preload]}}
+                :figwheel     {:on-jsload example.core/mount
+                               :open-urls ["http://localhost:3450/index.html"]}
+                :compiler     {:main                 example.core
+                               :asset-path           "js/compiled/out"
+                               :output-to            "resources/public/js/compiled/example.js"
+                               :output-dir           "resources/public/js/compiled/out"
+                               :source-map-timestamp true
+                               :preloads             [devtools.preload]}}
 
-               {:id "min"
+               {:id           "min"
                 :source-paths ["src" "../src"]
-                :compiler {:output-to "resources/public/js/compiled/example.js"
-                           :main example.core
-                           :optimizations :advanced
-                           :closure-defines {"goog.DEBUG" false}
-                           :verbose true
-                           :pretty-print false}}]}
+                :compiler     {:output-to       "resources/public/js/compiled/example.js"
+                               :main            example.core
+                               :optimizations   :advanced
+                               :closure-defines {"goog.DEBUG" false}
+                               :verbose         true
+                               :pretty-print    false}}
+
+               {:id           "bench"
+                :source-paths ["src" "../src"]
+                :compiler     {:main            example.bench
+                               :output-to       "resources/public/js/compiled/benchmark.js"
+                               :optimizations   :advanced
+                               :closure-defines {"goog.DEBUG" false}
+                               :install-deps    true}}]}
 
   :figwheel {:server-port 3450}
 
-  :profiles {:dev {:dependencies [[binaryage/devtools "0.9.2"]
-                                  [figwheel-sidecar "0.5.13"]
-                                  [com.cemerick/piggieback "0.2.2"]]
-                   :source-paths ["src" "../src"]
-                   :repl-options {:nrepl-middleware [cemerick.piggieback/wrap-cljs-repl]}
+  :profiles {:dev {:dependencies  [[binaryage/devtools "0.9.2"]
+                                   [figwheel-sidecar "0.5.13"]
+                                   [com.cemerick/piggieback "0.2.2"]]
+                   :source-paths  ["src" "../src"]
+                   :repl-options  {:nrepl-middleware [cemerick.piggieback/wrap-cljs-repl]}
                    :clean-targets ^{:protect false} ["resources/public/js/compiled"
                                                      :target-path]}})
