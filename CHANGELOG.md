@@ -1,3 +1,6 @@
+## 1.5.9
+- Add support for `@font-face` CSS at-rule via `font-face` macro
+
 ## 1.5.6
 - Add support for `defstyled` for Prum
 

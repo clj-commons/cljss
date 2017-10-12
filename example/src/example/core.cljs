@@ -4,10 +4,16 @@
             [om.dom :as dom]
             [om.next :as om :refer [defui]]
             [goog.dom :as gdom]
-            [cljss.core :refer [defstyles defkeyframes]]
+            [cljss.core :refer [defstyles defkeyframes font-face]]
             [cljss.reagent :as rss :include-macros true]
             [cljss.rum :as rumss :include-macros true]
             [cljss.om :as omss :include-macros true]))
+
+(def font-name "Example Font")
+
+(font-face {:font-family   font-name
+            :src           [{:url    "examplefont.woff"
+                             :format "woff"}]})
 
 (defkeyframes bounce [bounce-height]
   {[:from 20 53 80 :to] {:transform "translate3d(0,0,0)"}
@@ -19,7 +25,7 @@
   {:padding-top v-padding
    :padding-bottom v-padding
    :text-align "center"
-   :font "normal 18px sans-serif"})
+   :font "normal 18px Example Font, sans-serif"})
 
 (def color (r/atom "#856dcf"))
 

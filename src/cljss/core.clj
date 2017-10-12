@@ -1,5 +1,6 @@
 (ns cljss.core
   (:require [cljss.utils :refer [build-css escape-val]]
+            [cljss.font-face :as ff]
             [clojure.string :as cstr]))
 
 (defn- varid [cls idx [rule]]
@@ -186,3 +187,11 @@
         [keyframes# vals#] (build-keyframes keyframes)]
     `(defn ~var ~args
        (cljss.core/css-keyframes ~cls# ~keyframes# ~vals#))))
+
+(defmacro font-face
+  "Takes a hash of font descriptors and produces CSS string of @font-face declaration.
+  Returns a function that injects styles at runtime."
+  [descriptors]
+  (let [css# (ff/font-face descriptors)
+        cls# (hash css#)]
+    `(cljss.core/css ~cls# ~css# [])))

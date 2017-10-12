@@ -1,11 +1,12 @@
 (ns cljss.core-test
   (:require [clojure.test :refer :all]
-            [cljss.core :refer :all]))
+            [cljss.core :refer :all]
+            [cljss.font-face :as ff]))
 
 (def basic-styles {:color "red"})
 
 (def dynamic-styles {:background-color #(:bg %)
-                     :margin #(if (:large %) "10px" "5px")})
+                     :margin           #(if (:large %) "10px" "5px")})
 
 (def pseudo-styles (merge basic-styles {:&:hover {:color "blue"}}))
 
@@ -67,3 +68,21 @@
       (is (= [["--var-test-0" (:background-color complete-styles)]
               ["--var-test-1" (:margin complete-styles)]
               ["--var-test:active-2" (get-in complete-styles [:&:active :color])]] vals)))))
+
+(deftest test-font-face
+  (testing "build @font-face"
+    (is (= '(clojure.core/str
+              "@font-face{"
+              "font-family:\""
+              font-name
+              "\";font-variant:normal;font-stretch:unset;font-weight:400;font-style:normal;unicode-range:U+0025-00FF, U+0025-00FF;src:local(\"Arial\"), url(\"examplefont.woff\") format(\"woff\");"
+              "}")
+           (ff/font-face {:font-family   'font-name
+                          :font-variant  "normal"
+                          :font-stretch  "unset"
+                          :font-weight   400
+                          :font-style    "normal"
+                          :unicode-range ["U+0025-00FF" "U+0025-00FF"]
+                          :src           [{:local "Arial"}
+                                          {:url    "examplefont.woff"
+                                           :format "woff"}]})))))
