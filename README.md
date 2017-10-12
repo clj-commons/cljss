@@ -219,6 +219,28 @@ $ cd example
 $ lein figwheel
 ```
 
+## Testing
+
+cljss uses a combination of Clojure and ClojureScript tests. Clojure tests are run via `lein test` and ClojureScript tests are run via [doo](https://github.com/bensu/doo). ClojureScript tests require a valid environment in order to run - [PhantomJS](http://phantomjs.org/) being the easiest to install.
+
+Once a valid environment is setup, ClojureScript tests can be run like so:
+
+```
+$ lein doo phantom test once
+```
+
+Or with file watching:
+
+```
+$ lein doo phantom test
+```
+
+To run Clojure and ClojureScript tests at once use the `test-all` task:
+
+```
+$ lein test-all
+```
+
 If using emacs [cider](https://github.com/clojure-emacs/cider) - you can also launch the repl using `M-x cider-jack-in-clojurescript`.
 
 ## License
