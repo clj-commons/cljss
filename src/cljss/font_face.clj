@@ -4,7 +4,9 @@
 (defn- compile-src [m]
   (->> m
        (map (fn [[k v]] [(name k) "(\"" v "\")"]))
-       (interpose " ")))
+       (interpose " ")
+       (mapcat identity)
+       (into [])))
 
 (defmulti compile-font-face (fn [[k v]] k))
 
@@ -18,10 +20,25 @@
      ["\"" v "\""])])
 
 (defmethod compile-font-face :unicode-range [[k v]]
-  [(name k) (interpose ", " v)])
+  [(name k)
+   (->> v
+        (interpose ", ")
+        (into []))])
 
 (defmethod compile-font-face :src [[k v]]
-  [(name k) (->> v (map compile-src) (interpose ", "))])
+  [(name k)
+   (->> v
+        (map compile-src)
+        (interpose ", ")
+        (mapcat identity)
+        (into []))])
+
+(defn- compile-css-rule [[rule val]]
+  (let [r [(str (name rule) ":")]
+        r (if (vector? val)
+            (into r val)
+            (conj r val))]
+    (conj r ";")))
 
 (defn- literal? [x]
   (or (string? x) (number? x)))
@@ -41,8 +58,7 @@
 (defn font-face [descriptors]
   (let [s (->> descriptors
                (map compile-font-face)
-               (map (fn [[rule val]] [(str (name rule) ":") val ";"]))
-               flatten)]
+               (mapcat compile-css-rule))]
     (if (every? literal? s)
       (str "@font-face{" (apply str s) "}")
-      `(str "@font-face{" ~@(reduce-str s) "}"))))
+      `(cljs.core/str "@font-face{" ~@(reduce-str s) "}"))))

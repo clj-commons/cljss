@@ -71,11 +71,18 @@
 
 (deftest test-font-face
   (testing "build @font-face"
-    (is (= '(clojure.core/str
+    (is (= '(cljs.core/str
               "@font-face{"
               "font-family:\""
               font-name
-              "\";font-variant:normal;font-stretch:unset;font-weight:400;font-style:normal;unicode-range:U+0025-00FF, U+0025-00FF;src:local(\"Arial\"), url(\"examplefont.woff\") format(\"woff\");"
+              "\";font-variant:normal;font-stretch:unset;font-weight:400;font-style:normal;unicode-range:U+0025-00FF, U+0025-00FF;src:local(\"Arial\")"
+              \,
+              \space
+              "url(\""
+              (str "examplefont" ".woff")
+              "\")"
+              \space
+              "format(\"woff\");"
               "}")
            (ff/font-face {:font-family   'font-name
                           :font-variant  "normal"
@@ -84,5 +91,5 @@
                           :font-style    "normal"
                           :unicode-range ["U+0025-00FF" "U+0025-00FF"]
                           :src           [{:local "Arial"}
-                                          {:url    "examplefont.woff"
+                                          {:url    '(str "examplefont" ".woff")
                                            :format "woff"}]})))))

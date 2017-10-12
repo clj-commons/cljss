@@ -134,7 +134,7 @@ _NOTE: This feature is supported only for Rum/Sablono elements_
 
 ## Installation
 
-Add to project.clj: `[org.roman01la/cljss "1.5.9"]`
+Add to project.clj: `[org.roman01la/cljss "1.5.10"]`
 
 ## Usage
 

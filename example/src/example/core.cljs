@@ -10,9 +10,10 @@
             [cljss.om :as omss :include-macros true]))
 
 (def font-name "Example Font")
+(def font-url "examplefont")
 
 (font-face {:font-family   font-name
-            :src           [{:url    "examplefont.woff"
+            :src           [{:url    (str font-url ".woff")
                              :format "woff"}]})
 
 (defkeyframes bounce [bounce-height]

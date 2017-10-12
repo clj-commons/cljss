@@ -1,3 +1,6 @@
+## 1.5.10
+- Improved `font-face` macro, allow to have arbitrary expressions in `@font-face` directives
+
 ## 1.5.9
 - Add support for `@font-face` CSS at-rule via `font-face` macro
 
