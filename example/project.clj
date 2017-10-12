@@ -11,7 +11,7 @@
                  [rum "0.10.8"]
                  [reagent "0.7.0"]
                  [org.omcljs/om "1.0.0-beta1"]
-                 [org.roman01la/prum "0.10.8-7"]]
+                 [org.roman01la/prum "0.10.8-8"]]
 
   :plugins [[lein-figwheel "0.5.13"]
             [lein-cljsbuild "1.1.7" :exclusions [[org.clojure/clojure]]]]
