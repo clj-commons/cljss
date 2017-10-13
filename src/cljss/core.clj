@@ -131,6 +131,10 @@
                                      (list cls (v props))
 
                                      :else (list cls v))))
+                            (map (fn [[k v]]
+                                   [k (if (number? v)
+                                        (str v "px")
+                                        v)]))
                             (cljss.core/css cls static))
              meta-attrs (->> vars
                              (map second)
