@@ -117,36 +117,44 @@
 
 (defmacro make-styled []
   '(defn styled [cls static vars attrs create-element]
-     (fn [props & children]
-       (let [[props children] (if (map? props)
-                                (array props children)
-                                (array {} (apply array props children)))
-             var-class (->> vars
-                            (map (fn [[cls v]]
-                                   (cond
-                                     (and (ifn? v) (satisfies? IWithMeta v))
-                                     (->> v meta list flatten (select-keys props) vals (apply v) (list cls))
+     (let [clsn (str cls "-" (gensym))
+           static (if ^boolean goog.DEBUG
+                    (clojure.string/replace static cls clsn)
+                    static)
+           vars (if ^boolean goog.DEBUG
+                  (->> vars (map (fn [[k v]] [(clojure.string/replace k cls clsn) v])))
+                  vars)
+           cls (if ^boolean goog.DEBUG clsn cls)]
+       (fn [props & children]
+         (let [[props children] (if (map? props)
+                                  (array props children)
+                                  (array {} (apply array props children)))
+               var-class (->> vars
+                              (map (fn [[cls v]]
+                                     (cond
+                                       (and (ifn? v) (satisfies? IWithMeta v))
+                                       (->> v meta list flatten (select-keys props) vals (apply v) (list cls))
 
-                                     (ifn? v)
-                                     (list cls (v props))
+                                       (ifn? v)
+                                       (list cls (v props))
 
-                                     :else (list cls v))))
-                            (map (fn [[k v]]
-                                   [k (if (number? v)
-                                        (str v "px")
-                                        v)]))
-                            (cljss.core/css cls static))
-             meta-attrs (->> vars
-                             (map second)
-                             (filter #(satisfies? IWithMeta %))
-                             (map meta)
-                             flatten
-                             set)
-             className (:className props)
-             className (str (when className (str className " ")) var-class)
-             props (assoc props :className className)
-             props (apply dissoc props (concat attrs meta-attrs))]
-         (create-element props children)))))
+                                       :else (list cls v))))
+                              (map (fn [[k v]]
+                                     [k (if (number? v)
+                                          (str v "px")
+                                          v)]))
+                              (cljss.core/css cls static))
+               meta-attrs (->> vars
+                               (map second)
+                               (filter #(satisfies? IWithMeta %))
+                               (map meta)
+                               flatten
+                               set)
+               className (:className props)
+               className (str (when className (str className " ")) var-class)
+               props (assoc props :className className)
+               props (apply dissoc props (concat attrs meta-attrs))]
+           (create-element props children))))))
 
 (defn- keyframes-styles [idx styles]
   (let [dynamic (filterv dynamic? styles)
