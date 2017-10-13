@@ -21,7 +21,13 @@
 
 (defn- collect-styles [cls idx styles]
   (let [dynamic (filterv dynamic? styles)
-        static (filterv (comp not dynamic?) styles)
+        static (->> styles
+                    (filterv (comp not dynamic?))
+                    (mapv (fn [[rule value]]
+                            [rule
+                             (if (number? value)
+                               (str value "px")
+                               value)])))
         [vars idx]
         (reduce
           (fn [[vars idx] ds]
@@ -29,7 +35,9 @@
              (inc idx)])
           [[] idx]
           dynamic)
-        vals (mapv (fn [[_ var] [_ exp]] [var exp]) vars dynamic)
+        vals (mapv (fn [[_ var] [_ exp]] [var `(let [e# ~exp] (if (number? e#) (cljs.core/str e# "px") e#))])
+                   vars
+                   dynamic)
         static (->> vars
                     (map (fn [[rule var]] [rule (str "var(" var ")")]))
                     (concat static)
