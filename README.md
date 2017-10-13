@@ -7,7 +7,9 @@
 [![Clojars](https://img.shields.io/clojars/v/org.roman01la/cljss.svg)](https://clojars.org/org.roman01la/cljss)
 [![CircleCI](https://circleci.com/gh/roman01la/cljss.svg?style=svg)](https://circleci.com/gh/roman01la/cljss)
 
-
+<a href="https://www.patreon.com/bePatron?c=1239559">
+  <img src="https://c5.patreon.com/external/logo/become_a_patron_button.png" height="40px" />
+</a>
 
 ## Table of Contents
 - [Why write CSS in ClojureScript?](#why-write-css-in-clojurescript)
