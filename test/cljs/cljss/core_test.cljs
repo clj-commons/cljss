@@ -25,13 +25,13 @@
       (is (= "--var-cljss_core-test__Test-0" varname))
       (is (= (str ".cljss_core-test__Test{margin:var(" varname ");}") static))))
 
-  (testing "psuedo styles"
+  (testing "pseudo styles"
     (let [[tag static vals attrs]
           (test-styled Test :h1 {:color "white" :&:hover {:color "red"}})
           class-name ".cljss_core-test__Test"]
       (is (= static (str class-name "{color:white;}" class-name ":hover{color:red;}")))))
 
-  (testing "dynamic psuedo styles"
+  (testing "dynamic pseudo styles"
     (let [[tag static vals attrs]
           (test-styled
             Test
