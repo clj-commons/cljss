@@ -21,13 +21,7 @@
 
 (defn- collect-styles [cls idx styles]
   (let [dynamic (filterv dynamic? styles)
-        static (->> styles
-                    (filterv (comp not dynamic?))
-                    (mapv (fn [[rule value]]
-                            [rule
-                             (if (number? value)
-                               (str value "px")
-                               value)])))
+        static  (filterv (comp not dynamic?) styles)
         [vars idx]
         (reduce
           (fn [[vars idx] ds]
@@ -35,29 +29,27 @@
              (inc idx)])
           [[] idx]
           dynamic)
-        vals (mapv (fn [[_ var] [_ exp]] [var `(let [e# ~exp] (if (number? e#) (cljs.core/str e# "px") e#))])
-                   vars
-                   dynamic)
-        static (->> vars
-                    (map (fn [[rule var]] [rule (str "var(" var ")")]))
-                    (concat static)
-                    (build-css cls))]
+        vals    (mapv (fn [[_ var] [_ exp]] [var exp]) vars dynamic)
+        static  (->> vars
+                     (map (fn [[rule var]] [rule (str "var(" var ")")]))
+                     (concat static)
+                     (build-css cls))]
     [static vals idx]))
 
 (defn build-styles [cls styles]
-  (let [pseudo (filterv pseudo? styles)
-        styles (filterv (comp not pseudo?) styles)
+  (let [pseudo  (filterv pseudo? styles)
+        styles  (filterv (comp not pseudo?) styles)
         [static vals idx] (collect-styles cls 0 styles)
         pstyles (->> pseudo
                      (map (fn [[rule styles]]
                             (collect-styles (str cls (subs (name rule) 1)) idx styles))))
-        static (->> pstyles
-                    (map first)
-                    (apply str)
-                    (str static))
-        vals (->> pstyles
-                  (mapcat second)
-                  (into vals))]
+        static  (->> pstyles
+                     (map first)
+                     (apply str)
+                     (str static))
+        vals    (->> pstyles
+                     (mapcat second)
+                     (into vals))]
     [static vals]))
 
 (defn- ->status-styles [styles]
@@ -71,7 +63,7 @@
          (group-by first)
          (map (fn [[rule states]]
                 (let [svals (map last states)
-                      args (mapv (fn [_] (gensym "var")) svals)]
+                      args  (mapv (fn [_] (gensym "var")) svals)]
                   [rule
                    `(with-meta
                       (fn ~args
@@ -108,57 +100,53 @@
    Returns a var bound to the result of calling `cljss.core/styled`,
    which produces React element and injects styles."
   [tag styles cls]
-  (let [tag (name tag)
+  (let [tag    (name tag)
         styles (->status-styles styles)
         [static values] (build-styles cls styles)
         values (vals->array values)
-        attrs (->> styles vals (filterv keyword?))]
+        attrs  (->> styles vals (filterv keyword?))]
     [tag static values `(cljs.core/array ~@attrs)]))
 
 (defmacro make-styled []
   '(defn styled [cls static vars attrs create-element]
-     (let [clsn (str cls "-" (gensym))
+     (let [clsn   (str cls "-" (gensym))
            static (if ^boolean goog.DEBUG
                     (clojure.string/replace static cls clsn)
                     static)
-           vars (if ^boolean goog.DEBUG
-                  (->> vars (map (fn [[k v]] [(clojure.string/replace k cls clsn) v])))
-                  vars)
-           cls (if ^boolean goog.DEBUG clsn cls)]
+           vars   (if ^boolean goog.DEBUG
+                    (->> vars (map (fn [[k v]] [(clojure.string/replace k cls clsn) v])))
+                    vars)
+           cls    (if ^boolean goog.DEBUG clsn cls)]
        (fn [props & children]
          (let [[props children] (if (map? props)
                                   (array props children)
                                   (array {} (apply array props children)))
-               var-class (->> vars
-                              (map (fn [[cls v]]
-                                     (cond
-                                       (and (ifn? v) (satisfies? IWithMeta v))
-                                       (->> v meta list flatten (select-keys props) vals (apply v) (list cls))
+               var-class  (->> vars
+                               (map (fn [[cls v]]
+                                      (cond
+                                        (and (ifn? v) (satisfies? IWithMeta v))
+                                        (->> v meta list flatten (select-keys props) vals (apply v) (list cls))
 
-                                       (ifn? v)
-                                       (list cls (v props))
+                                        (ifn? v)
+                                        (list cls (v props))
 
-                                       :else (list cls v))))
-                              (map (fn [[k v]]
-                                     [k (if (number? v)
-                                          (str v "px")
-                                          v)]))
-                              (cljss.core/css cls static))
+                                        :else (list cls v))))
+                               (cljss.core/css cls static))
                meta-attrs (->> vars
                                (map second)
                                (filter #(satisfies? IWithMeta %))
                                (map meta)
                                flatten
                                set)
-               className (:className props)
-               className (str (when className (str className " ")) var-class)
-               props (assoc props :className className)
-               props (apply dissoc props (concat attrs meta-attrs))]
+               className  (:className props)
+               className  (str (when className (str className " ")) var-class)
+               props      (assoc props :className className)
+               props      (apply dissoc props (concat attrs meta-attrs))]
            (create-element props children))))))
 
 (defn- keyframes-styles [idx styles]
   (let [dynamic (filterv dynamic? styles)
-        static (filterv (comp not dynamic?) styles)
+        static  (filterv (comp not dynamic?) styles)
         [vars idx]
         (reduce
           (fn [[vars idx] [rule]]
@@ -166,13 +154,13 @@
              (inc idx)])
           [[] idx]
           dynamic)
-        vals (mapv (fn [[_ var] [_ exp]] [(str "var(" var ")") exp]) vars dynamic)
-        static (->> vars
-                    (map (fn [[rule var]] [rule (str "var(" var ")")]))
-                    (concat static)
-                    (map (fn [[rule val]] (str (name rule) ":" (escape-val rule val) ";")))
-                    (cstr/join "")
-                    (#(str "{" % "}")))]
+        vals    (mapv (fn [[_ var] [_ exp]] [(str "var(" var ")") exp]) vars dynamic)
+        static  (->> vars
+                     (map (fn [[rule var]] [rule (str "var(" var ")")]))
+                     (concat static)
+                     (map (fn [[rule val]] (str (name rule) ":" (escape-val rule val) ";")))
+                     (cstr/join "")
+                     (#(str "{" % "}")))]
     [static vals idx]))
 
 (defn- ->ks-key [k]
