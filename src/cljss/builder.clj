@@ -43,12 +43,10 @@
                          [(conj coll (collect-styles cls (str cls (subs (name rule) 1)) idx styles))
                           (inc idx)])
                        [[] idx])
-                     first)
-        static  (->> pstyles
-                     (map first)
-                     (apply str)
-                     (str static))
-        vals    (->> pstyles
-                     (mapcat second)
-                     (into vals))]
-    [static vals]))
+                     first)]
+    (->> pstyles
+         (map (fn [[static vals]]
+                [(->> static (re-matches #"(\..*)\{.*") second)
+                 static
+                 vals]))
+         (into [[cls static vals]]))))

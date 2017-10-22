@@ -5,7 +5,7 @@
 
 (defn- compile-class [class styles]
   (let [cls       (str "css-" (hash styles))
-        gen-class `(cljss.core/css ~cls ~@(builder/build-styles cls styles))]
+        gen-class `(cljss.core/css-batch ~cls ~(builder/build-styles cls styles))]
     (if (seq class)
       `(apply str ~gen-class " " ~@(interpose " " class))
       gen-class)))
