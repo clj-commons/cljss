@@ -1,11 +1,11 @@
 (ns sablono.cljss-compiler
   (:require [sablono.compiler :as s]
             [sablono.util :as sutil]
-            [cljss.core :as cljss]))
+            [cljss.builder :as builder]))
 
 (defn- compile-class [class styles]
   (let [cls       (str "css-" (hash styles))
-        gen-class `(cljss.core/css ~cls ~@(cljss/build-styles cls styles))]
+        gen-class `(cljss.core/css ~cls ~@(builder/build-styles cls styles))]
     (if (seq class)
       `(apply str ~gen-class " " ~@(interpose " " class))
       gen-class)))
