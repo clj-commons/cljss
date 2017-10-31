@@ -1,3 +1,8 @@
+## 1.5.12
+- Require Sablono compiler extension to fix `:css` prop compilation
+- Fix CSS pseudos compilation for production
+- Fix CSS pseudos compilation with dynamic styles
+
 ## 1.5.11
 - Add `inject-global` macro
 
