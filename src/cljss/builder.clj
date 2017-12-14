@@ -47,9 +47,6 @@
         vals    (->> pstyles
                      (mapcat second)
                      (into vals))]
-    (->> pstyles
-         (map (fn [[static]]
-                [(->> static (re-matches #"(\..*)\{.*") second)
-                 static
-                 []]))
-         (into [[cls static vals]]))))
+    [cls
+     (apply str static (map first pstyles))
+     vals]))

@@ -59,7 +59,6 @@
            :active? false}
           "Clojure Style Sheets for Rum")])
 
-
 ;; Reagent
 (rss/defstyled ReagentH1 :h1
   {:font-size "48px"

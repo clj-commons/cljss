@@ -41,7 +41,7 @@
    and returns generated class name."
   [var args styles]
   (let [cls-name# (var->cls-name var)
-        [static# vals#] (build-styles cls-name# styles)]
+        [_ static# vals#] (build-styles cls-name# styles)]
     `(defn ~var ~args
        (cljss.core/css ~cls-name# ~static# ~vals#))))
 
@@ -56,7 +56,7 @@
   [tag styles cls]
   (let [tag    (name tag)
         styles (->status-styles styles)
-        [static values] (build-styles cls styles)
+        [_ static values] (build-styles cls styles)
         values (vals->array values)
         attrs  (->> styles vals (filterv keyword?))]
     [tag static values `(cljs.core/array ~@attrs)]))
