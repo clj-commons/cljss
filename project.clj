@@ -1,4 +1,4 @@
-(defproject org.roman01la/cljss "1.5.12"
+(defproject org.roman01la/cljss "1.5.13"
   :description "Clojure Style Sheets"
 
   :url "https://github.com/roman01la/cljss"
