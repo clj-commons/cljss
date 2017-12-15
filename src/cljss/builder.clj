@@ -1,5 +1,7 @@
 (ns cljss.builder
-  (:require [cljss.utils :refer [build-css]]))
+  (:require [cljss.utils :refer [build-css]]
+            [cljss.validation.css :as validator]
+            [cuerdas.core :as c]))
 
 (defn varid [cls idx [rule]]
   [rule (str "--var-" cls "-" idx)])
@@ -34,7 +36,15 @@
     [static vals idx]))
 
 (defn build-styles [cls styles]
-  (let [pseudo  (filterv pseudo? styles)
+  (validator/validate-css-properties styles)
+  (let [{:keys [error ast]} (->> styles validator/validate-styles (group-by (comp ffirst last)))
+        styles (if (seq error)
+                 (apply dissoc styles (map first error))
+                 styles)
+        styles (if (seq ast)
+                 (apply assoc styles (mapcat validator/compile-styles ast))
+                 styles)
+        pseudo  (filterv pseudo? styles)
         styles  (filterv (comp not pseudo?) styles)
         [static vals idx] (collect-styles cls cls 0 styles)
         pstyles (->> pseudo
@@ -47,6 +57,11 @@
         vals    (->> pstyles
                      (mapcat second)
                      (into vals))]
+    (doseq [[_ {:keys [error]}] error]
+      (println
+        (c/<<-
+          (c/istr "WARNING - Invalid CSS syntax
+                  ~{error}"))))
     [cls
      (apply str static (map first pstyles))
      vals]))

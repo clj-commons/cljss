@@ -165,3 +165,10 @@
   [css]
   (let [css (ig/inject-global css)]
     `(do ~@(->> css (map (fn [[cls# css#]] `(cljss.core/css ~cls# ~css# [])))))))
+
+(comment
+  (macroexpand-1
+    '(defstyles header [height]
+       {:background-color [255 255 256]
+        :posiion "relative"})))
+

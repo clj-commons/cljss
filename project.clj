@@ -7,7 +7,11 @@
             :url  "http://www.eclipse.org/legal/epl-v10.html"}
 
   :dependencies [[org.clojure/clojure "1.9.0" :scope "provided"]
-                 [org.clojure/clojurescript "1.9.946" :scope "provided"]]
+                 [org.clojure/clojurescript "1.9.946" :scope "provided"]
+                 [org.clojure/spec.alpha "0.1.143"]
+                 [funcool/cuerdas "2.0.4"]
+                 [clj-fuzzy "0.4.1"]
+                 [cheshire "5.8.0"]]
 
   :test-paths ["test/clj"]
 
