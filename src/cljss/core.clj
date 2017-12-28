@@ -92,10 +92,12 @@
                                (map meta)
                                flatten
                                set)
-               className  (:className props)
-               className  (str (when className (str className " ")) var-class)
-               props      (assoc props :className className)
-               props      (apply dissoc props (concat attrs meta-attrs))]
+               className  (-> props (select-keys [:className :class :class-name]) vals (filter identity))
+               className  (str (when (seq className)
+                                 (str (cstr/join " " className) " "))
+                               var-class)
+               props      (apply dissoc props (concat attrs meta-attrs [:class :class-name :className]))
+               props      (assoc props :className className)]
            (create-element props children))))))
 
 (defn- keyframes-styles [idx styles]
