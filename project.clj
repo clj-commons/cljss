@@ -7,12 +7,12 @@
             :url  "http://www.eclipse.org/legal/epl-v10.html"}
 
   :dependencies [[org.clojure/clojure "1.9.0" :scope "provided"]
-                 [org.clojure/clojurescript "1.9.946" :scope "provided"]]
+                 [org.clojure/clojurescript "1.9.946" :scope "provided"]
+                 [sablono "0.8.1"]]
 
   :test-paths ["test/clj"]
 
   :profiles {:dev {:source-paths ["src" "test/clj"]
-                   :dependencies [[sablono "0.8.1"]]
                    :plugins      [[lein-doo "0.1.8"]
                                   [lein-cljsbuild "1.1.7"]]}}
 
