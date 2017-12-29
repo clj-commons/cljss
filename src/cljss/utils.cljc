@@ -3,6 +3,10 @@
 
 #?(:cljs (def dev? ^boolean goog.DEBUG))
 
+(defn pseudo? [[rule value]]
+  (and (re-matches #"&:.*" (name rule))
+       (map? value)))
+
 (defn literal? [x]
   (or (string? x) (number? x)))
 

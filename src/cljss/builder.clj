@@ -1,52 +1,33 @@
 (ns cljss.builder
-  (:require [cljss.utils :refer [build-css]]))
-
-(defn varid [cls idx [rule]]
-  [rule (str "--var-" cls "-" idx)])
-
-(defn pseudo? [[rule value]]
-  (and (re-matches #"&:.*" (name rule))
-       (map? value)))
-
-(defn dynamic? [[_ value]]
-  (not (or (string? value)
-           (number? value))))
+  (:require [cljss.media :refer [build-media]]
+            [cljss.collect :as c]
+            [cljss.utils :as utils]))
 
 (defn status? [[rule value]]
   (and (re-matches #"^.*\?$" (name rule))
        (map? value)))
 
-(defn collect-styles [id cls idx styles]
-  (let [dynamic (filterv dynamic? styles)
-        static  (filterv (comp not dynamic?) styles)
-        [vars idx]
-        (reduce
-          (fn [[vars idx] ds]
-            [(conj vars (varid id idx ds))
-             (inc idx)])
-          [[] idx]
-          dynamic)
-        vals    (mapv (fn [[_ var] [_ exp]] [var exp]) vars dynamic)
-        static  (->> vars
-                     (map (fn [[rule var]] [rule (str "var(" var ")")]))
-                     (concat static)
-                     (build-css cls))]
-    [static vals idx]))
-
 (defn build-styles [cls styles]
-  (let [pseudo  (filterv pseudo? styles)
-        styles  (filterv (comp not pseudo?) styles)
-        [static vals idx] (collect-styles cls cls 0 styles)
+  (c/reset-env! {:cls cls})
+  (let [pseudo  (filterv utils/pseudo? styles)
+        [mstatic mvals] (some-> styles :cljss.core/media build-media)
+        styles  (dissoc styles :cljss.core/media)
+        styles  (filterv (comp not utils/pseudo?) styles)
+        [static vals] (c/collect-styles cls styles)
         pstyles (->> pseudo
                      (reduce
-                       (fn [[coll idx] [rule styles]]
-                         [(conj coll (collect-styles cls (str cls (subs (name rule) 1)) idx styles))
-                          (inc idx)])
-                       [[] idx])
-                     first)
+                       (fn [coll [rule styles]]
+                         (conj coll (c/collect-styles (str cls (subs (name rule) 1)) styles)))
+                       []))
         vals    (->> pstyles
                      (mapcat second)
-                     (into vals))]
+                     (into vals)
+                     (concat mvals))]
     [cls
-     (apply str static (map first pstyles))
+     `(cljs.core/str ~(apply str static (map first pstyles)) ~mstatic)
      vals]))
+
+(build-styles
+  "hello"
+  {:cljss.core/media {{:max-width 'sa :min-width 'l} {:font-size 'a
+                                                      :&:hover   {:margin 'b}}}})
