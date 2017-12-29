@@ -1,5 +1,6 @@
 (ns cljss.media
   (:require [clojure.spec.alpha :as s]
+            [clojure.spec.gen.alpha :as gen]
             [clojure.string :as cstr]
             [cljss.utils :refer [literal?]]
             [cljss.collect :as c]
@@ -10,7 +11,6 @@
 ;;
 
 (s/def ::modifiers #{:not :only})
-(s/def ::logical-operators #{:and :not :only})
 (s/def ::media-types #{:all :print :screen :speech})
 
 (s/def ::media-feature-name
@@ -129,24 +129,7 @@
 ;;
 
 (defn compile-media-query-dispatch [ast]
-  (cond
-    (= :query (first ast)) :query
-    (= :modifier (first ast)) :modifier
-    (= :media-type (first ast)) :media-type
-    (= :condition (first ast)) :condition
-    (= :conditions (first ast)) :conditions
-    (= :logical (first ast)) :logical
-    (= :cond-without-or (first ast)) :cond-without-or
-    (= :in-parens (first ast)) :in-parens
-    (= :feature (first ast)) :feature
-    (= :feature-name (first ast)) :feature-name
-    (= :feature-value (first ast)) :feature-value
-    (= :plain (first ast)) :plain
-    (= :range (first ast)) :range
-    (= :basic-range (first ast)) :basic-range
-    (= :complex-range (first ast)) :complex-range
-    (= :boolean (first ast)) :boolean
-    :else (first ast)))
+  (first ast))
 
 (defmulti compile-media-query #'compile-media-query-dispatch)
 
@@ -185,13 +168,14 @@
 (defmethod compile-media-query :feature-value [[_ feature-value]]
   (cond
     (keyword? feature-value) (name feature-value)
-    (symbol? feature-value) (name feature-value)
     :else feature-value))
 
 (defmethod compile-media-query :plain [[_ {:keys [feature-name feature-value]}]]
-  (str "("
-       (compile-media-query [:feature-name feature-name]) ":"
-       (compile-media-query [:feature-value feature-value]) ")"))
+  (let [feature-name  (compile-media-query [:feature-name feature-name])
+        feature-value (compile-media-query [:feature-value feature-value])]
+    (if (literal? feature-value)
+      (str "(" feature-name ":" feature-value ")")
+      `(cljs.core/str ~(str "(" feature-name ":") ~feature-value ")"))))
 
 (defmethod compile-media-query :range [[_ range]]
   (compile-media-query range))
@@ -200,105 +184,68 @@
   (str "(" (name bool) ")"))
 
 (defmethod compile-media-query :basic-range [[_ {:keys [left operator right]}]]
-  (str
-    "("
-    (compile-media-query left) " "
-    (name operator) " "
-    (compile-media-query right)
-    ")"))
+  (let [left     (compile-media-query left)
+        right    (compile-media-query right)
+        operator (name operator)]
+    (if (->> [left right] (map (comp not literal?) (filter identity) seq))
+      `(cljs.core/str "(" ~left " " ~operator " " ~right ")")
+      (str "(" left " " operator " " right ")"))))
 
 (defmethod compile-media-query :complex-range
   [[_ [_ {:keys [left left-operator feature-name right-operator right]}]]]
-  (str
-    "("
-    (compile-media-query [:feature-value left]) " "
-    (name left-operator) " "
-    (compile-media-query [:feature-name feature-name]) " "
-    (name right-operator) " "
-    (compile-media-query [:feature-value right])
-    ")"))
+  (let [left           (compile-media-query [:feature-value left])
+        feature-name   (compile-media-query [:feature-name feature-name])
+        right          (compile-media-query [:feature-value right])
+        left-operator  (name left-operator)
+        right-operator (name right-operator)]
+    (if (->> [left right] (map (comp not literal?) (filter identity) seq))
+      `(cljs.core/str "(" ~left ~(str " " left-operator " " feature-name " " right-operator " ") ~right ")")
+      (str "(" left " " left-operator " " feature-name " " right-operator " " right ")"))))
 
-(->> [:only :screen :and [:orientation :portrait]
-      :or :not :all :and [:orientation :portrait]
-      :or :not :print :and [:orientation :portrait]
-      :or [:color]
-      :or [:orientation :portrait] :and [:orientation :portrait]]
-     (s/explain ::media-query))
+(defn -compile-media-query [query]
+  (let [ret (s/conform ::media-query query)
+        ret (if (= ::s/invalid ret)
+              (throw (Error. (s/explain ::media-query query)))
+              (compile-media-query ret))]
+    `(cljs.core/str "@media " (clojure.string/join " " ~ret))))
 
-
-
-
-
-
-
-(s/def ::media-directives #{:max-width :min-width})
-
-(s/def ::directive
-  (s/and
-    (s/conformer seq)
-    (s/coll-of
-      (s/cat
-        :directive ::media-directives
-        :value some?))))
-
-(s/def ::css (s/map-of keyword? some?))
-
-(s/def ::directives-block
-  (s/and
-    (s/conformer seq)
-    (s/coll-of
-      (s/cat
-        :directives ::directive
-        :styles ::css))))
-
-(defn parse-media [styles]
-  (s/conform ::directives-block styles))
-
-(defn explain-media [styles]
-  (s/explain ::directives-block styles))
 
 (defn compile-media-dispatch [styles]
   (cond
     (contains? styles :media) :media
-    (contains? styles :directives) :directives
-    (contains? styles :directive) :directive))
+    (contains? styles :styles) :styles))
 
 (defmulti compile-media #'compile-media-dispatch)
 
 (defmethod compile-media :media [{media :media}]
-  (->> media
+  (->> (seq media)
        (reduce
-         (fn [[styles svalues] directives]
-           (let [[static values] (compile-media directives)]
-             [`(cljs.core/str ~styles "@media " ~static) (concat svalues values)]))
+         (fn [[sstyles svalues] [query styles]]
+           (let [[static values] (compile-media {:styles styles})
+                 query (-compile-media-query query)]
+             [`(cljs.core/str ~sstyles ~query ~static) (concat svalues values)]))
          ["" []])))
 
-
-(defmethod compile-media :directives [{:keys [directives styles]}]
-  (let [pseudo     (filterv utils/pseudo? styles)
-        pstyles    (->> pseudo
-                        (reduce
-                          (fn [coll [rule styles]]
-                            (conj coll (c/collect-styles (str (:cls @c/env*) (subs (name rule) 1)) styles)))
-                          []))
-        styles     (filterv (comp not utils/pseudo?) styles)
+(defmethod compile-media :styles [{styles :styles}]
+  (let [pseudo  (filterv utils/pseudo? styles)
+        pstyles (->> pseudo
+                     (reduce
+                       (fn [coll [rule styles]]
+                         (conj coll (c/collect-styles (str (:cls @c/env*) (subs (name rule) 1)) styles)))
+                       []))
+        styles  (filterv (comp not utils/pseudo?) styles)
         [static values] (c/collect-styles (:cls @c/env*) styles)
-        values     (->> pstyles
-                        (mapcat second)
-                        (into values))
-        directives (map compile-media directives)]
-    [`(cljs.core/str
-        (cstr/join " and " ~directives)
-        ~(str "{" (apply str static (map first pstyles)) "}"))
+        values  (->> pstyles
+                     (mapcat second)
+                     (into values))]
+    [(str "{" (apply str static (map first pstyles)) "}")
      values]))
 
-(defmethod compile-media :directive [{:keys [directive value]}]
-  (if (literal? value)
-    (str "(" (name directive) ":" value ")")
-    `(cljs.core/str "(" ~(name directive) ":" ~value ")")))
-
 (defn build-media [styles]
-  (let [result (parse-media styles)]
-    (if (= result ::s/invalid)
-      (throw (Error. (explain-media styles)))
-      (compile-media {:media result}))))
+  (compile-media {:media styles}))
+
+(c/reset-env! {:cls "class"})
+
+(build-media
+  {[:screen :and [:min-width 'a]] {:font-size 'p
+                                   :&:hover   {:color 'g}}})
