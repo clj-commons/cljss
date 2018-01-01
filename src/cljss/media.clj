@@ -173,9 +173,7 @@
 (defmethod compile-media-query :plain [[_ {:keys [feature-name feature-value]}]]
   (let [feature-name  (compile-media-query [:feature-name feature-name])
         feature-value (compile-media-query [:feature-value feature-value])]
-    (if (literal? feature-value)
-      (str "(" feature-name ":" feature-value ")")
-      `(cljs.core/str ~(str "(" feature-name ":") ~feature-value ")"))))
+    (str "(" feature-name ":" feature-value ")")))
 
 (defmethod compile-media-query :range [[_ range]]
   (compile-media-query range))
@@ -187,9 +185,7 @@
   (let [left     (compile-media-query left)
         right    (compile-media-query right)
         operator (name operator)]
-    (if (->> [left right] (map (comp not literal?) (filter identity) seq))
-      `(cljs.core/str "(" ~left " " ~operator " " ~right ")")
-      (str "(" left " " operator " " right ")"))))
+    (str "(" left " " operator " " right ")")))
 
 (defmethod compile-media-query :complex-range
   [[_ [_ {:keys [left left-operator feature-name right-operator right]}]]]
@@ -198,17 +194,16 @@
         right          (compile-media-query [:feature-value right])
         left-operator  (name left-operator)
         right-operator (name right-operator)]
-    (if (->> [left right] (map (comp not literal?) (filter identity) seq))
-      `(cljs.core/str "(" ~left ~(str " " left-operator " " feature-name " " right-operator " ") ~right ")")
-      (str "(" left " " left-operator " " feature-name " " right-operator " " right ")"))))
+    (str "(" left " " left-operator " " feature-name " " right-operator " " right ")")))
 
 (defn -compile-media-query [query]
   (let [ret (s/conform ::media-query query)
         ret (if (= ::s/invalid ret)
               (throw (Error. (s/explain ::media-query query)))
               (compile-media-query ret))]
-    `(cljs.core/str "@media " (clojure.string/join " " ~ret))))
-
+    (->> (flatten ret)
+         (clojure.string/join " ")
+         (str "@media "))))
 
 (defn compile-media-dispatch [styles]
   (cond
@@ -223,7 +218,7 @@
          (fn [[sstyles svalues] [query styles]]
            (let [[static values] (compile-media {:styles styles})
                  query (-compile-media-query query)]
-             [`(cljs.core/str ~sstyles ~query ~static) (concat svalues values)]))
+             [(str sstyles query static) (concat svalues values)]))
          ["" []])))
 
 (defmethod compile-media :styles [{styles :styles}]
@@ -244,8 +239,10 @@
 (defn build-media [styles]
   (compile-media {:media styles}))
 
-(c/reset-env! {:cls "class"})
+(comment
+  (c/reset-env! {:cls "class"})
 
-(build-media
-  {[:screen :and [:min-width 'a]] {:font-size 'p
-                                   :&:hover   {:color 'g}}})
+  (build-media
+    {[:only :screen :and [:min-width "300px"]]
+     {:font-size 'p
+      :&:hover   {:color 'g}}}))
