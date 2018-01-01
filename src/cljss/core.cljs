@@ -30,13 +30,6 @@
              (str cls " " var-cls))
            cls))))))
 
-(defn css-batch [cls batch]
-  (->> batch
-       (map #(apply css cls %))
-       (mapcat #(cstr/split % #" "))
-       (into #{})
-       (cstr/join " ")))
-
 (defn css-keyframes
   "Takes CSS animation name, static styles and dynamic styles.
    Injects styles and returns generated CSS animation name."
