@@ -22,12 +22,14 @@
         vals    (->> pstyles
                      (mapcat second)
                      (into vals)
-                     (concat mvals))]
+                     (concat mvals)
+                     (into []))]
     [cls
      `(cljs.core/str ~(apply str static (map first pstyles)) ~mstatic)
      vals]))
 
-(build-styles
-  "hello"
-  {:cljss.core/media {{:max-width 'sa :min-width 'l} {:font-size 'a
-                                                      :&:hover   {:margin 'b}}}})
+(comment
+  (build-styles
+    "hello"
+    {:cljss.core/media {{:max-width 'sa :min-width 'l} {:font-size 'a
+                                                        :&:hover   {:margin 'b}}}}))

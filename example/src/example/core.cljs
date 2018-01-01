@@ -4,7 +4,7 @@
             [om.dom :as dom]
             [om.next :as om :refer [defui]]
             [goog.dom :as gdom]
-            [cljss.core :refer [defstyles defkeyframes font-face inject-global]]
+            [cljss.core :as css :refer [defstyles defkeyframes font-face inject-global]]
             [cljss.reagent :as rss :include-macros true]
             [cljss.rum :as rumss :include-macros true]
             [cljss.om :as omss :include-macros true]))
@@ -34,7 +34,9 @@
   {:padding-top v-padding
    :padding-bottom v-padding
    :text-align "center"
-   :font "normal 18px Example Font, sans-serif"})
+   :font "normal 18px Example Font, sans-serif"
+   ::css/media {[:only :screen :and [:max-width "460px"]]
+                {:margin-top (str (* font-size 4) "px")}}})
 
 (def color (r/atom "#856dcf"))
 

@@ -2,7 +2,8 @@
   (:require [cljss.utils :refer [build-css escape-val]]
             [cljss.font-face :as ff]
             [cljss.inject-global :as ig]
-            [cljss.builder :refer [status? dynamic? build-styles]]
+            [cljss.builder :refer [status? build-styles]]
+            [cljss.collect :refer [dynamic?]]
             [clojure.string :as cstr]
             [sablono.cljss-compiler]))
 
@@ -92,9 +93,9 @@
                                (map meta)
                                flatten
                                set)
-               className  (-> props (select-keys [:className :class :class-name]) vals (filter identity))
+               className  (-> props (select-keys [:className :class :class-name]) vals (->> (filter identity)))
                className  (str (when (seq className)
-                                 (str (cstr/join " " className) " "))
+                                 (str (clojure.string/join " " className) " "))
                                var-class)
                props      (apply dissoc props (concat attrs meta-attrs [:class :class-name :className]))
                props      (assoc props :className className)]
