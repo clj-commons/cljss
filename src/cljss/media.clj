@@ -79,16 +79,16 @@
 
 (s/def ::media-condition
   (s/alt
-    :modifier (s/? ::media-not)
+    :m-modifier (s/? ::media-not)
     :condition (s/cat
                  :in-parens ::media-in-parens
                  :conditions (s/* (s/alt
-                                    :modifier ::media-and
-                                    :modifier ::media-or)))))
+                                    :m-modifier ::media-and
+                                    :m-modifier ::media-or)))))
 
 (s/def ::media-in-parens
-  (s/or
-    :condition ::media-condition
+  (s/alt
+    :condition-in-parens (s/spec ::media-condition)
     :feature ::media-feature))
 
 (s/def ::media-not
@@ -108,14 +108,14 @@
 
 (s/def ::media-condition-without-or
   (s/alt
-    :condition ::media-not
+    :m-modifiers ::media-not
     :condition (s/cat
                  :in-parens ::media-in-parens
-                 :conditions (s/* ::media-and))))
+                 :m-modifiers (s/* ::media-and))))
 
 (s/def ::media-query
   (s/alt
-    :condition ::media-condition
+    :mq-condition ::media-condition
     :query (s/cat
              :modifier (s/? ::modifiers)
              :media-type ::media-types
@@ -123,6 +123,12 @@
                           (s/cat
                             :logical #{:and}
                             :cond-without-or ::media-condition-without-or)))))
+
+(s/def ::media-query-list
+  (s/or
+    :media-query ::media-query
+    :media-query-list (s/coll-of ::media-query)))
+
 
 ;;
 ;; AST compiler
@@ -133,11 +139,28 @@
 
 (defmulti compile-media-query #'compile-media-query-dispatch)
 
+(defmethod compile-media-query :media-query-list [[_ media-query-list]]
+  (->> media-query-list
+       (map compile-media-query)
+       (interpose ", ")
+       flatten))
+
+(defmethod compile-media-query :media-query [[_ media-query]]
+  (flatten (compile-media-query media-query)))
+
 (defmethod compile-media-query :query [[_ query]]
   (->> (seq query) (map compile-media-query)))
 
 (defmethod compile-media-query :modifier [[_ modifier]]
   (name modifier))
+
+(defmethod compile-media-query :m-modifier [[_ m-modifier]]
+  (map compile-media-query m-modifier))
+
+(defmethod compile-media-query :m-modifiers [[_ m-modifiers]]
+  (mapcat
+    #(map compile-media-query %)
+    m-modifiers))
 
 (defmethod compile-media-query :media-type [[_ media-type]]
   (name media-type))
@@ -145,13 +168,19 @@
 (defmethod compile-media-query :condition [[_ condition]]
   (->> (seq condition) (map compile-media-query)))
 
+(defmethod compile-media-query :mq-condition [[_ condition]]
+  (compile-media-query condition))
+
 (defmethod compile-media-query :conditions [[_ conditions]]
-  (mapcat
-    #(compile-media-query [:condition %])
-    conditions))
+  (mapcat compile-media-query conditions))
+
+(defmethod compile-media-query :condition-in-parens [[_ condition-in-parens]]
+  (compile-media-query condition-in-parens))
 
 (defmethod compile-media-query :logical [[_ logical]]
-  (name logical))
+  (if (= logical :or)
+    ","
+    (name logical)))
 
 (defmethod compile-media-query :cond-without-or [[_ condition]]
   (compile-media-query condition))
@@ -171,7 +200,7 @@
     :else feature-value))
 
 (defmethod compile-media-query :plain [[_ {:keys [feature-name feature-value]}]]
-  (let [feature-name  (compile-media-query [:feature-name feature-name])
+  (let [feature-name (compile-media-query [:feature-name feature-name])
         feature-value (compile-media-query [:feature-value feature-value])]
     (str "(" feature-name ":" feature-value ")")))
 
@@ -182,24 +211,24 @@
   (str "(" (name bool) ")"))
 
 (defmethod compile-media-query :basic-range [[_ {:keys [left operator right]}]]
-  (let [left     (compile-media-query left)
-        right    (compile-media-query right)
+  (let [left (compile-media-query left)
+        right (compile-media-query right)
         operator (name operator)]
     (str "(" left " " operator " " right ")")))
 
 (defmethod compile-media-query :complex-range
   [[_ [_ {:keys [left left-operator feature-name right-operator right]}]]]
-  (let [left           (compile-media-query [:feature-value left])
-        feature-name   (compile-media-query [:feature-name feature-name])
-        right          (compile-media-query [:feature-value right])
-        left-operator  (name left-operator)
+  (let [left (compile-media-query [:feature-value left])
+        feature-name (compile-media-query [:feature-name feature-name])
+        right (compile-media-query [:feature-value right])
+        left-operator (name left-operator)
         right-operator (name right-operator)]
     (str "(" left " " left-operator " " feature-name " " right-operator " " right ")")))
 
 (defn -compile-media-query [query]
-  (let [ret (s/conform ::media-query query)
+  (let [ret (s/conform ::media-query-list query)
         ret (if (= ::s/invalid ret)
-              (throw (Error. (s/explain ::media-query query)))
+              (throw (Error. (s/explain ::media-query-list query)))
               (compile-media-query ret))]
     (->> (flatten ret)
          (clojure.string/join " ")
@@ -222,17 +251,17 @@
          ["" []])))
 
 (defmethod compile-media :styles [{styles :styles}]
-  (let [pseudo  (filterv utils/pseudo? styles)
+  (let [pseudo (filterv utils/pseudo? styles)
         pstyles (->> pseudo
                      (reduce
                        (fn [coll [rule styles]]
                          (conj coll (c/collect-styles (str (:cls @c/env*) (subs (name rule) 1)) styles)))
                        []))
-        styles  (filterv (comp not utils/pseudo?) styles)
+        styles (filterv (comp not utils/pseudo?) styles)
         [static values] (c/collect-styles (:cls @c/env*) styles)
-        values  (->> pstyles
-                     (mapcat second)
-                     (into values))]
+        values (->> pstyles
+                    (mapcat second)
+                    (into values))]
     [(str "{" (apply str static (map first pstyles)) "}")
      values]))
 
@@ -243,6 +272,7 @@
   (c/reset-env! {:cls "class"})
 
   (build-media
-    {[:only :screen :and [:min-width "300px"]]
+    {[[:only :screen :and [:min-width "300px"]]
+      [:print :and [:color]]]
      {:font-size 'p
       :&:hover   {:color 'g}}}))
