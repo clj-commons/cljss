@@ -23,6 +23,11 @@
       number?
       #(s/int-in-range? 0 361 %))))
 
+(s/def ::length-percentage
+  (s/alt
+    :length ::length
+    :percentage ::percentage))
+
 ;;
 ;; CSS Units
 ;;
