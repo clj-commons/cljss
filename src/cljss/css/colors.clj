@@ -51,7 +51,7 @@
     :percentage (s/spec ::units/percentage)))
 
 (s/def ::alpha-channel
-  (s/cat
+  (s/alt
     :numeric
     (s/cat
       :value
@@ -63,7 +63,7 @@
 
 (s/def ::rgba
   (s/cat
-    :tag #{:rgb}
+    :tag #{:rgb :rgba}
     :red ::numeric-percentage
     :green ::numeric-percentage
     :blue ::numeric-percentage
@@ -75,12 +75,12 @@
 
 (s/def ::angle-percentage
   (s/alt
-    :numeric :units/angle
+    :numeric ::units/angle
     :percentage (s/spec ::units/percentage)))
 
 (s/def ::hsla
   (s/cat
-    :tag #{:hsl}
+    :tag #{:hsl :hsla}
     :hue ::angle-percentage
     :saturation ::angle-percentage
     :lightness ::angle-percentage
@@ -114,4 +114,28 @@
     :hex ::hex))
 
 (comment
-  (s/conform ::color [:hex "242424"]))
+  (s/conform ::color [:rgba 10 20 190 0.1]))
+
+
+
+(defmulti compile-css first)
+
+(defmethod compile-css :keyword [value]
+  (units/compile-css value))
+
+(defmethod compile-css :rgba [[_ {:keys [red green blue alpha]}]]
+  (str "rgba("
+       (->> [red green blue (or alpha [:numeric {:value 1}])]
+            (map units/compile-css)
+            (clojure.string/join ", "))
+       ")"))
+
+(defmethod compile-css :hsla [[_ {:keys [hue saturation lightness alpha]}]]
+  (str "hsla("
+       (->> [hue saturation lightness (or alpha [:numeric {:value 1}])]
+            (map units/compile-css)
+            (clojure.string/join ", "))
+       ")"))
+
+(defmethod compile-css :hex [[_ {:keys [value]}]]
+  (str "#" value))

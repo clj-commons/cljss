@@ -87,3 +87,28 @@
 
 (comment
   (s/conform ::dimension [100 :ms]))
+
+
+
+(defmulti compile-css first)
+
+(defmethod compile-css :length [[_ {:keys [value unit]}]]
+  (str value (name unit)))
+
+(defmethod compile-css :time [[_ {:keys [value unit]}]]
+  (str value (name unit)))
+
+(defmethod compile-css :frequency [[_ {:keys [value unit]}]]
+  (str value (name unit)))
+
+(defmethod compile-css :resolution [[_ {:keys [value unit]}]]
+  (str value (name unit)))
+
+(defmethod compile-css :numeric [[_ {:keys [value]}]]
+  (str value))
+
+(defmethod compile-css :percentage [[_ {:keys [value]}]]
+  (str value "%"))
+
+(defmethod compile-css :keyword [[_ value]]
+  (name value))

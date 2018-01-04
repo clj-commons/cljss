@@ -17,4 +17,10 @@
 (s/def ::left ::value)
 
 (comment
-  (s/conform ::top [100 :px]))
+  (s/conform ::top :auto))
+
+
+(defmulti compile-css first)
+
+(defmethod compile-css :default [value]
+  (units/compile-css value))
