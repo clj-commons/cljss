@@ -1,5 +1,6 @@
 (ns cljss.css.colors
-  (:require [clojure.spec.alpha :as s]))
+  (:require [clojure.spec.alpha :as s]
+            [cljss.css.units :as units]))
 
 ;;
 ;; Keyword colors
@@ -44,17 +45,10 @@
       number?
       #(s/int-in-range? 0 256 %))))
 
-(s/def ::percentage
-  (s/cat
-    :value (s/and
-             number?
-             #(s/int-in-range? 0 101 %))
-    :unit #{:%}))
-
 (s/def ::numeric-percentage
   (s/alt
     :numeric ::rgb-range
-    :percentage (s/spec ::percentage)))
+    :percentage (s/spec ::units/percentage)))
 
 (s/def ::alpha-channel
   (s/cat
@@ -79,17 +73,10 @@
 ;; HSL(A) colors
 ;;
 
-(s/def ::angle
-  (s/cat
-    :value
-    (s/and
-      number?
-      #(s/int-in-range? 0 361 %))))
-
 (s/def ::angle-percentage
   (s/alt
-    :numeric ::angle
-    :percentage (s/spec ::percentage)))
+    :numeric :units/angle
+    :percentage (s/spec ::units/percentage)))
 
 (s/def ::hsla
   (s/cat
