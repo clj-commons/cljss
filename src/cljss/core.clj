@@ -83,7 +83,7 @@
                                (map (fn [[cls v]]
                                       (cond
                                         (and (ifn? v) (satisfies? IWithMeta v))
-                                        (->> v meta list flatten (select-keys props) vals (apply v) (list cls))
+                                        (->> v meta list flatten (map #(get props % nil)) (apply v) (list cls))
 
                                         (ifn? v)
                                         (list cls (v props))
