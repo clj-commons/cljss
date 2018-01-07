@@ -35,6 +35,9 @@
 (defmacro var->cls-name [sym]
   `(-> ~'&env :ns :name (clojure.core/str "/" ~sym) (clojure.string/replace "." "_") (clojure.string/replace "/" "__")))
 
+(defmacro var->cmp-name [sym]
+  `(-> ~'&env :ns :name (clojure.core/str "." ~sym)))
+
 (defmacro defstyles
   "Takes var name, a vector of arguments and a hash map of styles definition.
    Generates class name, static and dynamic parts of styles.
