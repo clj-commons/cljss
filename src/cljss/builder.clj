@@ -23,10 +23,10 @@
                      (mapcat second)
                      (into vals)
                      (concat mvals)
-                     (into []))]
-    [cls
-     `(cljs.core/str ~(apply str static (map first pstyles)) ~mstatic)
-     vals]))
+                     (into []))
+        static  (apply str static (map first pstyles))
+        static  (str static mstatic)]
+    [cls static vals]))
 
 (comment
   (build-styles
