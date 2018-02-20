@@ -39,6 +39,7 @@ Thease are some resources that can give you more context:
 - Automatic scoped styles by generating unique names
 - CSS pseudo-classes and pseudo-elements
 - CSS animations via `@keyframes` at-rule
+- CSS Media Queries
 - Injects styles into `<style>` tag at run-time
 - Debuggable styles in development (set via `goog.DEBUG`)
 - Fast, 10000 insertions in ~200ms
@@ -170,6 +171,51 @@ _NOTE: This feature is supported only for Rum/Sablono elements_
   {:body     {:margin 0}
    :ul       {:list-style "none"}
    "ul > li" {:margin (str v-margin "px 0")}})
+```
+
+### CSS Media Queries
+
+The syntax is specified as of [CSS Media Queries Level 4 spec](https://www.w3.org/TR/mediaqueries-4/).
+
+```clojure
+(require [cljss.core :as css])
+
+(defstyles header [height]
+  {:height     height
+   ::css/media {[:only :screen :and [:max-width "460px"]]
+                {:height (/ height 2)}}})
+```
+
+- Supported media types: `#{:all :print :screen :speech}`
+- Modifiers: `#{:not :only}`
+
+More examples of a query:
+
+#### Boolean query
+```clojure
+[[:monochrome]]
+```
+
+#### Simple conditional query
+```clojure
+[[:max-width "460px"]]
+```
+
+#### Multiple (comma separated) queries
+```clojure
+[[:screen :and [:max-width "460px"]]
+ [:print :and [:color]]]
+```
+
+#### Basic range query
+_Supported operators for range queries_ `#{'= '< '<= '> '>=}`
+```clojure
+'[[:max-width > "400px"]]
+```
+
+#### Complex range query
+```clojure
+'[["1200px" >= :max-width > "400px"]]
 ```
 
 ## Installation
