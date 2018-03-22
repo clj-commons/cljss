@@ -49,7 +49,7 @@ Thease are some resources that can give you more context:
 
 ### `defstyles`
 
-`defstyles` macro expands into a function which accepts arbitrary number of arguments and returns a string of auto-generated class names that references both static and dynamic styles.
+`defstyles` macro expands into a function which accepts an arbitrary number of arguments and returns a string of auto-generated class names that references both static and dynamic styles.
 
 ```clojure
 (defstyles button [bg]
@@ -66,11 +66,11 @@ Dynamic styles are updated via CSS Variables (see [browser support](http://caniu
 
 `defstyled` macro accepts var name, HTML element tag name as a keyword and a hash of styles.
 
-The macro expands into a function which accepts optional hash of attributes and child components, and returns React element. It is available for Om, Rum and Reagent libraries. Each of them are in corresponding namespaces: `cljss.om/defstyled`, `cljss.rum/defstyled` and `cljss.reagent/defstyled`.
+The macro expands into a function which accepts an optional hash of attributes and child components, and returns a React element. It is available for the Om, Rum and Reagent libraries. Each of them are in corresponding namespaces: `cljss.om/defstyled`, `cljss.rum/defstyled` and `cljss.reagent/defstyled`.
 
-A hash of attributes with dynamic CSS values as well as normal HTML attributes can be passed into underlying React element. Reading from attributes hash map can be done via anything that satisfies `cljs.core/ifn?` predicate (`Fn` and `IFn` protocols, and normal functions).
+A hash of attributes with dynamic CSS values as well as normal HTML attributes can be passed into the underlying React element. Reading from the attributes hash map can be done via anything that satisfies `cljs.core/ifn?` predicate (`Fn` and `IFn` protocols, and normal functions).
 
-_NOTE: Dynamic props that used only to compute styles are also passed onto React element and thus result in adding an unknown attribute on a DOM node. To prevent this it is recommended to use keyword or a function marked with `with-meta` so the library can remove those props (see example below)._
+_NOTE: Dynamic props that are used only to compute styles are also passed onto React element and thus result in adding an unknown attribute on a DOM node. To prevent this it is recommended to use keyword or a function marked with `with-meta` so the library can remove those props (see example below)._
 
 - keyword value — reads the value from props map and removes matching attribute
 - `with-meta` with a single keyword — passes a value of a specified attribute from props map into a function and removes matching attribute
@@ -133,7 +133,7 @@ _NOTE: This feature is supported only for Rum/Sablono elements_
   {:from {:transform (str "rotate(" from "deg)")
    :to   {:transform (str "rotate(" to "deg)")}})
 
-[:div {:style {:animation (str (spin 0 180) "500ms ease infinite")}}]
+[:div {:style {:animation (str (spin 0 180) " 500ms ease infinite")}}]
 ;; (js/React.createElement "div" #js {:style #js {:animation "animation-43697 500ms ease infinite"}})
 ```
 
