@@ -18,7 +18,7 @@
          (group-by first)
          (map (fn [[rule states]]
                 (let [svals (map last states)
-                      args  (mapv (fn [_] (gensym "var")) svals)]
+                      args (mapv (fn [_] (gensym "var")) svals)]
                   [rule
                    `(with-meta
                       (fn ~args
@@ -58,55 +58,19 @@
    Returns a var bound to the result of calling `cljss.core/styled`,
    which produces React element and injects styles."
   [tag styles cls]
-  (let [tag    (name tag)
+  (let [tag (name tag)
         styles (->status-styles styles)
         [_ static values] (build-styles cls styles)
         values (vals->array values)
-        attrs  (->> styles vals (filterv keyword?))]
+        attrs (->> styles vals (filterv keyword?))]
     [tag static values `(cljs.core/array ~@attrs)]))
 
 (defmacro make-styled []
-  '(defn styled [cls static vars attrs create-element]
-     (let [clsn   (str cls "-" (gensym))
-           static (if ^boolean goog.DEBUG
-                    (clojure.string/replace static cls clsn)
-                    static)
-           vars   (if ^boolean goog.DEBUG
-                    (->> vars (map (fn [[k v]] [(clojure.string/replace k cls clsn) v])))
-                    vars)
-           cls    (if ^boolean goog.DEBUG clsn cls)]
-       (fn [props & children]
-         (let [[props children] (if (map? props)
-                                  (array props children)
-                                  (array {} (apply array props children)))
-               var-class  (->> vars
-                               (map (fn [[cls v]]
-                                      (cond
-                                        (and (ifn? v) (satisfies? IWithMeta v))
-                                        (->> v meta list flatten (map #(get props % nil)) (apply v) (list cls))
-
-                                        (ifn? v)
-                                        (list cls (v props))
-
-                                        :else (list cls v))))
-                               (cljss.core/css cls static))
-               meta-attrs (->> vars
-                               (map second)
-                               (filter #(satisfies? IWithMeta %))
-                               (map meta)
-                               flatten
-                               set)
-               className  (-> props (select-keys [:className :class :class-name]) vals (->> (filter identity)))
-               className  (str (when (seq className)
-                                 (str (clojure.string/join " " className) " "))
-                               var-class)
-               props      (apply dissoc props (concat attrs meta-attrs [:class :class-name :className]))
-               props      (assoc props :className className)]
-           (create-element props children))))))
+  '(def styled cljss.core/-styled))
 
 (defn- keyframes-styles [idx styles]
   (let [dynamic (filterv dynamic? styles)
-        static  (filterv (comp not dynamic?) styles)
+        static (filterv (comp not dynamic?) styles)
         [vars idx]
         (reduce
           (fn [[vars idx] [rule]]
@@ -114,13 +78,13 @@
              (inc idx)])
           [[] idx]
           dynamic)
-        vals    (mapv (fn [[_ var] [_ exp]] [(str "var(" var ")") exp]) vars dynamic)
-        static  (->> vars
-                     (map (fn [[rule var]] [rule (str "var(" var ")")]))
-                     (concat static)
-                     (map (fn [[rule val]] (str (name rule) ":" (escape-val rule val) ";")))
-                     (cstr/join "")
-                     (#(str "{" % "}")))]
+        vals (mapv (fn [[_ var] [_ exp]] [(str "var(" var ")") exp]) vars dynamic)
+        static (->> vars
+                    (map (fn [[rule var]] [rule (str "var(" var ")")]))
+                    (concat static)
+                    (map (fn [[rule val]] (str (name rule) ":" (escape-val rule val) ";")))
+                    (cstr/join "")
+                    (#(str "{" % "}")))]
     [static vals idx]))
 
 (defn- ->ks-key [k]
