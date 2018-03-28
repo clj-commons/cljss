@@ -1,3 +1,6 @@
+## 1.6.2
+- Added ability to refer to styles in *.clj namespaces for `inject-global` and `font-face` macros
+
 ## 1.6.1
 - Added runtime kebab-case transformation for `defstyled`
 - Added cljss.core/remove-styles!

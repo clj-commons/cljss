@@ -13,7 +13,7 @@ Ask questions on #cljss chat at [Clojuarians Slack](http://clojurians.net/)
   <img src="https://c5.patreon.com/external/logo/become_a_patron_button.png" height="40px" />
 </a>
 
-`[org.roman01la/cljss "1.6.1"]`
+`[org.roman01la/cljss "1.6.2"]`
 
 ## Table of Contents
 - [Why write CSS in ClojureScript?](#why-write-css-in-clojurescript)
@@ -142,6 +142,8 @@ _NOTE: This feature is supported only for Rum/Sablono elements_
 
 `font-face` macro allows to define custom fonts via `@font-face` CSS at-rule. The macro generates CSS string and injects it at runtime. The syntax is defined in example below.
 
+_The macro supports referring to styles declaration in a separate *.clj namespace._
+
 ```clojure
 (require '[cljss.core :refer [font-face]])
 
@@ -163,6 +165,8 @@ _NOTE: This feature is supported only for Rum/Sablono elements_
 ### `inject-global`
 
 `inject-global` macro allows to defined global styles, such as to reset user agent default styles. The macro generates CSS string and injects it at runtime. The syntax is defined in example below.
+
+_The macro supports referring to styles declaration in a separate *.clj namespace._
 
 ```clojure
 (require '[cljss.core :refer [inject-global]])

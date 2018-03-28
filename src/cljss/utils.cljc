@@ -39,3 +39,12 @@
                (cons s1 s))))
          (list ""))
        reverse))
+
+#?(:clj
+   (defn resolve-get
+     "Tries to resolve a var and get its value. Returns the symbol if failed."
+     [sym]
+     (try
+       (var-get (resolve sym))
+       (catch Exception e
+         sym))))

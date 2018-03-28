@@ -1,5 +1,5 @@
 (ns cljss.core
-  (:require [cljss.utils :refer [build-css escape-val]]
+  (:require [cljss.utils :refer [build-css escape-val resolve-get]]
             [cljss.font-face :as ff]
             [cljss.inject-global :as ig]
             [cljss.builder :refer [status? build-styles]]
@@ -125,7 +125,7 @@
   "Takes a hash of font descriptors and produces CSS string of @font-face declaration.
   Returns a function that injects styles at runtime."
   [descriptors]
-  (let [css# (ff/font-face descriptors)
+  (let [css# (ff/font-face (resolve-get descriptors))
         cls# (hash css#)]
     `(cljss.core/css ~cls# ~css# [])))
 
@@ -133,5 +133,5 @@
   "Takes a hash of global styles definitions and produces CSS string.
   Returns a sequence of calls to inject styles at runtime."
   [css]
-  (let [css (ig/inject-global css)]
+  (let [css (ig/inject-global (resolve-get css))]
     `(do ~@(->> css (map (fn [[cls# css#]] `(cljss.core/css ~cls# ~css# [])))))))

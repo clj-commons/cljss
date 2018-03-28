@@ -3,8 +3,9 @@
             [goog.dom :as gdom]
             [cljss.core :as css :refer [inject-global]]
             [cljss.rum :refer-macros [defstyled]]))
+
 (defn inject-global-styles! []
-  (inject-global styles/globals))
+  (inject-global example.styles/globals))
 
 (def btn-bg-colors
   {:primary "#0052CC"
