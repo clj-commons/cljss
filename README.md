@@ -20,6 +20,7 @@ Ask questions on #cljss chat at [Clojuarians Slack](http://clojurians.net/)
 - [Features](#features)
 - [How it works](#how-it-works)
 - [Usage](#usage)
+- [Development workflow](#development-workflow)
 - [Production build](#production-build)
 - [Roadmap](#roadmap)
 - [Contributing](#contributing)
@@ -273,6 +274,26 @@ Dynamically injected CSS:
 }
 ```
 
+## Development workflow
+
+When developing with Figwheel in order to deduplicate styles between reloads it is recommended to use Figwheel's `:on-jsload` hook to clean injected styles.
+
+
+```clojure
+:figwheel {:on-jsload example.core/on-reload}
+```
+
+```clojure
+(ns example.core
+  (:require [cljss.core :as css]))
+
+(defn on-reload []
+  (css/remove-styles!)
+  (render-app))
+```
+
+_NOTE: don't forget that once styles were removed you have to re-inject `defkeyframes`, `font-face` and `inject-global` declarations_
+
 ## Production build
 
 Set `goog.DEBUG` to `false` to enable fast path styles injection.
@@ -283,7 +304,6 @@ Set `goog.DEBUG` to `false` to enable fast path styles injection.
 ```
 
 ## Roadmap
-- Media Queries syntax
 - Server-side rendering
 
 ## Contributing
