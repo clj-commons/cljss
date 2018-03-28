@@ -3,6 +3,8 @@
             [goog.dom :as gdom]
             [cljss.core :as css :refer [inject-global]]
             [cljss.rum :refer-macros [defstyled]]))
+(defn inject-global-styles! []
+  (inject-global styles/globals))
 
 (def btn-bg-colors
   {:primary "#0052CC"
@@ -115,10 +117,7 @@
 
 (defn mount []
   (css/remove-styles!)
-  (inject-global
-    {:body {:margin 0
-            :font "normal 16px sans-serif"
-            :color "#242424"}})
+  (inject-global-styles!)
   (render))
 
-(render)
+(mount)
