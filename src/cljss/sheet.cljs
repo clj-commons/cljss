@@ -37,7 +37,7 @@
                 (js/console.warn "Illegal CSS rule" rule))))))))
   (flush! [this]
     (-> tag
-        .parentNode
+        .-parentNode
         (.removeChild tag)))
   (filled? [this]
     (= (count @cache) limit)))

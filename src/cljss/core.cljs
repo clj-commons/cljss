@@ -1,9 +1,13 @@
 (ns cljss.core
-  (:require [cljss.sheet :refer [create-sheet insert! filled?]]
+  (:require [cljss.sheet :refer [create-sheet insert! filled? flush!]]
             [cljss.utils :refer [build-css]]
             [clojure.string :as cstr]))
 
 (def ^:private sheets (atom (list (create-sheet))))
+
+(defn remove-styles! []
+  (run! flush! @sheets)
+  (reset! sheets (list (create-sheet))))
 
 (defn css
   "Takes class name, static styles and dynamic styles.
