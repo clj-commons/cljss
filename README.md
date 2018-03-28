@@ -13,7 +13,7 @@ Ask questions on #cljss chat at [Clojuarians Slack](http://clojurians.net/)
   <img src="https://c5.patreon.com/external/logo/become_a_patron_button.png" height="40px" />
 </a>
 
-`[org.roman01la/cljss "1.6.0"]`
+`[org.roman01la/cljss "1.6.1"]`
 
 ## Table of Contents
 - [Why write CSS in ClojureScript?](#why-write-css-in-clojurescript)
