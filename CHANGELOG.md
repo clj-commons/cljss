@@ -1,3 +1,8 @@
+## 1.6.1
+- Added runtime kebab-case transformation for `defstyled`
+- Added cljss.core/remove-styles!
+- Fixed styles deduplication
+
 ## 1.5.12
 - Require Sablono compiler extension to fix `:css` prop compilation
 - Fix CSS pseudos compilation for production
