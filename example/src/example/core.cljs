@@ -4,11 +4,6 @@
             [cljss.core :as css :refer [inject-global]]
             [cljss.rum :refer-macros [defstyled]]))
 
-(inject-global
-  {:body {:margin 0
-          :font "normal 16px sans-serif"
-          :color "#242424"}})
-
 (def btn-bg-colors
   {:primary "#0052CC"
    :default "rgba(9, 30, 66, 0.04)"
@@ -115,4 +110,15 @@
      (H2 {} "Clojure Style Sheets"))
    (ButtonsDemo)])
 
-(rum/mount (app) (gdom/getElement "app"))
+(defn render []
+  (rum/mount (app) (gdom/getElement "app")))
+
+(defn mount []
+  (css/remove-styles!)
+  (inject-global
+    {:body {:margin 0
+            :font "normal 16px sans-serif"
+            :color "#242424"}})
+  (render))
+
+(render)
