@@ -1,5 +1,6 @@
 <!DOCTYPE html>
-<html><head>
+<html>
+<head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <style>
@@ -104,9 +105,15 @@
         font-size: 24px;
         font-weight: 200;
       }
+      h2 a {
+        border-bottom: 1px dotted #242424;
+      }
       a {
         color: #242424;
         text-decoration: none;
+      }
+      p {
+        line-height: 1.4em;
       }
       pre {
         flex: 1;
@@ -155,18 +162,38 @@
         from { transform: rotate(0deg); }
         to { transform: rotate(360deg); }
       }
+      @media (max-width: 800px) {
+        .media {
+            border-radius: 5px;
+        }
+      }
+
+
     </style>
-  </head>
-  <body data-feedly-mini="yes">
-    <header class="page-header">
-      <a href="https://github.com/roman01la/cljss"><img src="logo.png" alt="" class="logo"></a>
-      <h1><a href="https://github.com/roman01la/cljss">Clojure Style Sheets</a></h1>
-      <p><small>CSS-in-JS for ClojureScript</small></p>
-      <p><small><code>[org.roman01la/cljss "1.5.13"]</code></small></p>
-    </header>
-    <main class="page-content">
-      <div class="example">
-        <h2>Styles Map</h2>
+</head>
+<body data-feedly-mini="yes">
+<header class="page-header">
+    <a href="https://github.com/roman01la/cljss"><img src="logo.png" alt="" class="logo"></a>
+    <h1><a href="https://github.com/roman01la/cljss">Clojure Style Sheets</a></h1>
+    <p>
+        <small>CSS-in-JS for ClojureScript</small>
+    </p>
+
+    <p>
+        <small><code>[org.roman01la/cljss "1.6.2"]</code></small>
+    </p>
+
+</header>
+<main class="page-content">
+    <div class="example">
+        <h2>How it works</h2>
+        <p>
+            <small><code>EDN → cljss → (class-name, styles)</code></small>
+        </p>
+        <p><code>:cljss</code> takes styles in a form of EDN and computes CSS class name, with generated CSS as a side effect.</p>
+    </div>
+    <div class="example">
+        <h2><a href="https://github.com/roman01la/cljss#defstyles">Styles Map</a></h2>
         <div class="demo">
           <pre><code class="clojure hljs">(<span class="hljs-name">defstyles</span> avatar []
   {<span class="hljs-symbol">:width</span> <span class="hljs-string">"96px"</span>
@@ -174,13 +201,18 @@
    <span class="hljs-symbol">:border-radius</span> <span class="hljs-string">"50%"</span>})
 
 (<span class="hljs-name"><span class="hljs-builtin-name">defn</span></span> Avatar [url]
-  [<span class="hljs-symbol">:img</span> {<span class="hljs-symbol">:class</span> (<span class="hljs-name">avatar</span>) <span class="hljs-symbol">:src</span> url}])</code></pre>
-          <div class="avatar"></div>
+  [<span class="hljs-symbol">:img</span> {<span class="hljs-symbol">:class</span> (<span class="hljs-name">avatar</span>) <span
+                      class="hljs-symbol">:src</span> url}])</code></pre>
+            <div class="avatar"></div>
         </div>
-      </div>
-      <div class="example">
-        <h2>Styled Elements</h2>
-        <p><small><small>Om, Rum / Sablono &amp; Reagent</small></small></p>
+    </div>
+    <div class="example">
+        <h2><a href="https://github.com/roman01la/cljss#defstyled">Styled Elements</a></h2>
+        <p>
+            <small>
+                <small>Om, Rum / Sablono &amp; Reagent</small>
+            </small>
+        </p>
         <div class="demo">
           <pre><code class="clojure hljs">(<span class="hljs-name">defstyled</span> Avatar <span class="hljs-symbol">:img</span>
   {<span class="hljs-symbol">:width</span> <span class="hljs-string">"96px"</span>
@@ -188,10 +220,10 @@
    <span class="hljs-symbol">:border-radius</span> <span class="hljs-string">"50%"</span>})
 
 (<span class="hljs-name">Avatar</span> {<span class="hljs-symbol">:src</span> url})</code></pre>
-          <div class="avatar"></div>
+            <div class="avatar"></div>
         </div>
-      </div>
-      <div class="example">
+    </div>
+    <div class="example">
         <h2>Pseudo Selectors</h2>
         <div class="demo">
           <pre><code class="clojure hljs">(<span class="hljs-name">defstyled</span> Avatar <span class="hljs-symbol">:img</span>
@@ -202,22 +234,26 @@
    <span class="hljs-symbol">:&amp;:hover</span> {<span class="hljs-symbol">:transform</span> <span class="hljs-string">"scale(1.2)"</span>}})
 
 (<span class="hljs-name">Avatar</span> {<span class="hljs-symbol">:src</span> url})</code></pre>
-          <div class="avatar avatar-3"></div>
+            <div class="avatar avatar-3"></div>
         </div>
-      </div>
-      <div class="example">
+    </div>
+    <div class="example">
         <h2>Dynamic Props (function)</h2>
         <div class="demo">
           <pre><code class="clojure hljs">(<span class="hljs-name">defstyled</span> Avatar <span class="hljs-symbol">:img</span>
   {<span class="hljs-symbol">:width</span> <span class="hljs-string">"96px"</span>
    <span class="hljs-symbol">:height</span> <span class="hljs-string">"96px"</span>
-   <span class="hljs-symbol">:border-radius</span> (<span class="hljs-name"><span class="hljs-builtin-name">with-meta</span></span> #(<span class="hljs-name"><span class="hljs-builtin-name">if</span></span> % <span class="hljs-string">"50%"</span> <span class="hljs-string">"0"</span>) <span class="hljs-symbol">:rounded?</span>)})
+   <span class="hljs-symbol">:border-radius</span> (<span class="hljs-name"><span
+                      class="hljs-builtin-name">with-meta</span></span> #(<span class="hljs-name"><span
+                      class="hljs-builtin-name">if</span></span> % <span class="hljs-string">"50%"</span> <span
+                      class="hljs-string">"0"</span>) <span class="hljs-symbol">:rounded?</span>)})
 
-(<span class="hljs-name">Avatar</span> {<span class="hljs-symbol">:src</span> url <span class="hljs-symbol">:rounded?</span> <span class="hljs-literal">false</span>})</code></pre>
-          <div class="avatar avatar-4"></div>
+(<span class="hljs-name">Avatar</span> {<span class="hljs-symbol">:src</span> url <span
+                      class="hljs-symbol">:rounded?</span> <span class="hljs-literal">false</span>})</code></pre>
+            <div class="avatar avatar-4"></div>
         </div>
-      </div>
-      <div class="example">
+    </div>
+    <div class="example">
         <h2>Dynamic Props (keyword)</h2>
         <div class="demo">
           <pre><code class="clojure hljs">(<span class="hljs-name">defstyled</span> Avatar <span class="hljs-symbol">:img</span>
@@ -225,52 +261,75 @@
    <span class="hljs-symbol">:height</span> <span class="hljs-symbol">:size</span>
    <span class="hljs-symbol">:border-radius</span> <span class="hljs-string">"50%"</span>})
 
-(<span class="hljs-name">Avatar</span> {<span class="hljs-symbol">:src</span> url <span class="hljs-symbol">:size</span> <span class="hljs-string">"96px"</span>})</code></pre>
-          <div class="avatar"></div>
+(<span class="hljs-name">Avatar</span> {<span class="hljs-symbol">:src</span> url <span class="hljs-symbol">:size</span> <span
+                      class="hljs-string">"96px"</span>})</code></pre>
+            <div class="avatar"></div>
         </div>
-      </div>
+    </div>
     <div class="example">
-        <h2>@keyframes</h2>
+        <h2><a href="https://github.com/roman01la/cljss#defkeyframes">CSS Animations</a></h2>
         <div class="demo">
   <pre><code class="clojure hljs">(<span class="hljs-name">defkeyframes</span> spin [from to]
-  {<span class="hljs-symbol">:from</span> {<span class="hljs-symbol">:transform</span> (<span class="hljs-name"><span class="hljs-builtin-name">str</span></span> <span class="hljs-string">"rotate("</span> from <span class="hljs-string">"deg)"</span>)}
-   <span class="hljs-symbol">:to</span>   {<span class="hljs-symbol">:transform</span> (<span class="hljs-name"><span class="hljs-builtin-name">str</span></span> <span class="hljs-string">"rotate("</span> to <span class="hljs-string">"deg)"</span>)}})
+  {<span class="hljs-symbol">:from</span> {<span class="hljs-symbol">:transform</span> (<span class="hljs-name"><span
+              class="hljs-builtin-name">str</span></span> <span class="hljs-string">"rotate("</span> from <span
+              class="hljs-string">"deg)"</span>)}
+   <span class="hljs-symbol">:to</span>   {<span class="hljs-symbol">:transform</span> (<span class="hljs-name"><span
+              class="hljs-builtin-name">str</span></span> <span class="hljs-string">"rotate("</span> to <span
+              class="hljs-string">"deg)"</span>)}})
 
 (<span class="hljs-name">Avatar</span>
   {<span class="hljs-symbol">:src</span> url <span class="hljs-symbol">
-   :animation</span> (<span class="hljs-name"><span class="hljs-builtin-name">str</span></span> (<span class="hljs-name">spin</span> <span class="hljs-number">0</span> <span class="hljs-number">360</span>) <span class="hljs-string">" 2s ease infinite"</span>)})</code></pre>
+   :animation</span> (<span class="hljs-name"><span class="hljs-builtin-name">str</span></span> (<span
+              class="hljs-name">spin</span> <span class="hljs-number">0</span> <span
+              class="hljs-number">360</span>) <span class="hljs-string">" 2s ease infinite"</span>)})</code></pre>
             <div class="avatar avatar-4 spin"></div>
         </div>
     </div>
     <div class="example">
-        <h2>:css attribute</h2>
-        <p><small><small>Rum / Sablono</small></small></p>
+        <h2><a href="https://github.com/roman01la/cljss#css-attribute">“Inline” styles</a></h2>
+        <p>
+            <small>
+                <small>Rum / Sablono</small>
+            </small>
+        </p>
         <div class="demo">
       <pre><code class="clojure hljs">(<span class="hljs-name"><span class="hljs-builtin-name">defn</span></span> Avatar [url]
   [<span class="hljs-symbol">:img</span> {<span class="hljs-symbol">:src</span> url
-         <span class="hljs-symbol">:css</span> {<span class="hljs-symbol">:width</span> <span class="hljs-string">"96px"</span>
+         <span class="hljs-symbol">:css</span> {<span class="hljs-symbol">:width</span> <span
+                  class="hljs-string">"96px"</span>
                <span class="hljs-symbol">:height</span> <span class="hljs-string">"96px"</span>
                <span class="hljs-symbol">:border-radius</span> <span class="hljs-string">"50%"</span>}}])</code></pre>
             <div class="avatar"></div>
         </div>
     </div>
     <div class="example">
-        <h2>Predicate attributes</h2>
-        <p><small><small>Keywords ending with "?" character</small></small></p>
+        <h2><a href="https://github.com/roman01la/cljss#predicate-attributes-in-defstyled">Predicate attributes</a></h2>
+        <p>
+            <small>
+                <small>Keywords ending with “<code>?</code>” character</small>
+            </small>
+        </p>
         <div class="demo">
-      <pre><code class="clojure hljs">(<span class="hljs-name">defstyled</span> Avatar <span class="hljs-symbol">:img</span>
+      <pre><code class="clojure hljs">(<span class="hljs-name">defstyled</span> Avatar <span
+              class="hljs-symbol">:img</span>
   {<span class="hljs-symbol">:width</span> <span class="hljs-string">"96px"</span>
    <span class="hljs-symbol">:height</span> <span class="hljs-string">"96px"</span>
    <span class="hljs-symbol">:border-radius</span> <span class="hljs-string">"0"</span>
-   <span class="hljs-symbol">:rounded?</span> {<span class="hljs-symbol">:border-radius</span> <span class="hljs-string">"50%"</span>}})
+   <span class="hljs-symbol">:rounded?</span> {<span class="hljs-symbol">:border-radius</span> <span
+                  class="hljs-string">"50%"</span>}})
 
-(<span class="hljs-name">Avatar</span> {<span class="hljs-symbol">:src</span> url <span class="hljs-symbol">:rounded?</span> <span class="hljs-literal">true</span>})</code></pre>
+(<span class="hljs-name">Avatar</span> {<span class="hljs-symbol">:src</span> url <span
+                  class="hljs-symbol">:rounded?</span> <span class="hljs-literal">true</span>})</code></pre>
             <div class="avatar"></div>
         </div>
     </div>
     <div class="example">
         <h2>Readable CSS class names</h2>
-        <p><small><small>Namespace name + var name</small></small></p>
+        <p>
+            <small>
+                <small>Namespace name + <code>Var</code> name</small>
+            </small>
+        </p>
         <div class="demo">
   <pre><code class="clojure hljs">(<span class="hljs-name"><span class="hljs-builtin-name">ns</span></span> example.core)
 
@@ -283,9 +342,46 @@
             <div class="avatar"></div>
         </div>
     </div>
-    </main>
-    <footer class="page-footer">
-      <p><a href="https://github.com/roman01la/cljss">GitHub</a></p>
-      <p>Copyright © 2017 Roman Liutikov EPL-1.0</p>
-    </footer>
-</body></html>
+
+    <div class="example">
+        <h2><a href="https://github.com/roman01la/cljss#css-media-queries">CSS Media Queries</a></h2>
+        <div class="demo">
+  <pre><code class="clojure hljs">(<span class="hljs-name">defstyles</span> Avatar <span class="hljs-symbol">:img</span>
+  {<span class="hljs-symbol">:width</span> <span class="hljs-string">"96px"</span>
+   <span class="hljs-symbol">:height</span> <span class="hljs-string">"96px"</span>
+   <span class="hljs-symbol">:border-radius</span> <span class="hljs-string">"50%"</span>
+   <span class="hljs-symbol">:cljss.core/media</span>
+     {[[<span class="hljs-symbol">:max-width</span> <span class="hljs-string">"800px"</span>]]
+      {<span class="hljs-symbol">:border-radius</span> <span class="hljs-string">"5px"</span>}}})</code></pre>
+            <div class="avatar media"></div>
+        </div>
+    </div>
+
+    <div class="example">
+        <h2><a href="https://github.com/roman01la/cljss#font-face"><code>@font-face</code></a></h2>
+        <div class="demo">
+  <pre><code class="clojure hljs">(<span class="hljs-name">font-face</span>
+  {<span class="hljs-symbol">:font-family</span> <span class="hljs-string">"Open Sans"</span>
+   <span class="hljs-symbol">:src</span> [{<span class="hljs-symbol">:url</span> <span class="hljs-string">"/fonts/OpenSans-Regular-webfont.woff2"</span>
+          <span class="hljs-symbol">:format</span> <span class="hljs-string">"woff2"</span>}]})</code></pre>
+        </div>
+    </div>
+
+    <div class="example">
+        <h2><a href="https://github.com/roman01la/cljss#inject-global">Global styles</a></h2>
+        <div class="demo">
+  <pre><code class="clojure hljs">(<span class="hljs-name">inject-global</span>
+  {<span class="hljs-symbol">:body</span>     {<span class="hljs-symbol">:margin</span> <span
+              class="hljs-number">0</span>}
+   <span class="hljs-string">"ul > li"</span> {<span class="hljs-symbol">:margin</span> <span class="hljs-string">"8px 0"</span>}})</code></pre>
+        </div>
+    </div>
+
+
+</main>
+<footer class="page-footer">
+    <p><a href="https://github.com/roman01la/cljss">GitHub</a></p>
+    <p>Copyright © 2018 Roman Liutikov EPL-1.0</p>
+</footer>
+</body>
+</html>
