@@ -353,6 +353,7 @@ $ lein test-all
 ## Supporters
 
 [<img src="https://avatars3.githubusercontent.com/u/636651?s=460&v=4" width="100px;" />](https://github.com/brianium)
+[<img src="https://avatars1.githubusercontent.com/u/193187?s=400&v=4" width="100px;" />](https://github.com/sherbondy)
 
 ## License
 
