@@ -1,124 +1,96 @@
 (ns example.core
   (:require [rum.core :as rum]
-            [goog.dom :as gdom]
             [cljss.core :as css :refer [inject-global]]
-            [cljss.rum :refer-macros [defstyled]]))
+            [cljss.rum :refer-macros [defstyled]]
+            [devcards.core :as dc :refer [defcard]]
+            [sablono.core :refer [html]]))
 
-(defn inject-global-styles! []
-  (inject-global example.styles/globals))
+;; utils
+(defn space-between [space items]
+  (html
+    [:div {}
+     (interpose (html [:span {:css {:margin-left space}}]) items)]))
 
-(def btn-bg-colors
-  {:primary "#0052CC"
-   :default "rgba(9, 30, 66, 0.04)"
-   :warning "#FFAB00"
-   :error "#DE350B"})
+;; design system
+(def colors
+  {:blue "#298FCA"
+   :green "#7BC86C"
+   :orange "#FFB968"
+   :red "#EF7564"
+   :yellow "#F5DD29"})
 
-(def btn-bg-hover-colors
-  {:primary "#0065ff"
-   :default "rgba(9, 30, 66, 0.08)"
-   :warning "#ffc400"
-   :error "#FF5630"})
+(rum/defc Text
+  [{:keys [size]}
+   child]
+  [:div
+   {:css {:font-family "Helvetica Neue"
+          :font-size size}}
+   child])
 
-(def btn-text-colors
-  {:default "#505F79"
-   :primary "#fff"
-   :warning "#172B4D"
-   :error "#fff"})
+(defn P [opts child]
+  (let [opts (assoc opts :size "14px")]
+    (Text opts child)))
 
-(defstyled Button :button
-  {:background-color (with-meta btn-bg-colors :kind)
-   :border-radius "3px"
-   :border-width 0
-   :box-sizing "border-box"
-   :max-width "100%"
-   :color (with-meta btn-text-colors :kind)
-   :padding "0 8px"
-   :font-size "inherit"
-   :text-align "center"
-   :vertical-align "middle"
-   :white-space "nowrap"
-   :width "auto"
-   :height "2.2857142857142856em"
-   :line-height "2.2857142857142856em"
-   :transition "background-color 100ms ease-out"
-   :&:hover {:cursor "pointer"
-             :background-color (with-meta btn-bg-hover-colors :kind)}})
+(defn H1 [opts child]
+  (let [opts (assoc opts :size "48px")]
+    (Text opts child)))
 
-(defstyled -Table :div
-  {:display "table"})
+(defn H2 [opts child]
+  (let [opts (assoc opts :size "40px")]
+    (Text opts child)))
 
-(defstyled -TableRow :div
-  {:display "table-row"})
+(def button->color
+  {:warning (:orange colors)
+   :error (:red colors)
+   :ok (:green colors)})
 
-(defstyled -TableCell :div
-  {:display "table-cell"
-   :padding "4px"})
+(rum/defc Button
+  [{:keys [kind
+           on-click]}
+   child]
+  [:button
+   {:on-click on-click
+    :css {:background (get button->color kind)
+          :border 0
+          :border-radius "5px"
+          :padding "8px 24px"
+          :font-size "14px"
+          :color "#fff"}}
+   child])
 
-(rum/defc Table [rows]
-  (-Table {}
-    (for [cells rows]
-      (-TableRow {}
-        (for [cell cells]
-          (-TableCell {} cell))))))
+;; cards
+(defcard Colors
+  "Base colors"
+  (fn [state _]
+    (html
+      [:div {:css {:display "flex"
+                   :justify-content "space-between"}}
+       (for [[_ color] (:colors @state)]
+         [:div
+          {:css {:background color
+                 :width "100px"
+                 :height "100px"
+                 :border-radius "5px"
+                 :padding "8px"}}
+          color])]))
+  {:colors colors})
 
-(def flex-alignment
-  {:vertical "column"
-   :horizontal "row"})
+(defcard Typography
+  (html
+    [:div {}
+     (H1 {} "Heading One")
+     (H2 {} "Heading Two")
+     (P {} "Paragraph Text")]))
 
-(defstyled Header :header
-  {:padding "16px"
-   :display "flex"
-   :flex-direction (with-meta flex-alignment :alignment)
-   :align-items :align-content
-   :justify-content :align-content})
+(defcard Buttons
+  (space-between
+    "8px"
+    [(Button {:kind :warning} "Warning")
+     (Button {:kind :error} "Error")
+     (Button {:kind :ok} "OK")]))
 
-(defstyled Logo :img
-  {:width "155px"
-   :height "68px"})
-
-(defstyled H2 :h2
-  {:font-size "18px"
-   :color "#242424"
-   :font-weight 400})
-
-(defstyled H3 :h2
-  {:font-size "16px"
-   :color "#242424"
-   :font-weight 400})
-
-(defstyled -DemoBlock :div
-  {:padding "8px"
-   :border-radius "5px"
-   :border "2px solid #eee"})
-
-(rum/defc DemoBlock [{:keys [title]} child]
-  [:div {:css {:margin "0 0 32px"}}
-   (H3 {} "Buttons")
-   (-DemoBlock {} child)])
-
-(rum/defc ButtonsDemo []
-  (DemoBlock {:title "Buttons"}
-    (Table
-      [[(Button {:kind :default} "Default")]
-       [(Button {:kind :primary} "Primary")]
-       [(Button {:kind :warning} "Warning")]
-       [(Button {:kind :error} "Error")]])))
-
-(rum/defc app []
-  [:div {:css {:padding "32px"
-               :max-width "640px"
-               :margin "0 auto"}}
-   (Header {:align-content "center" :alignment :vertical}
-     (Logo {:src "https://roman01la.github.io/cljss/logo.png"})
-     (H2 {} "Clojure Style Sheets"))
-   (ButtonsDemo)])
-
-(defn render []
-  (rum/mount (app) (gdom/getElement "app")))
 
 (defn mount []
-  (css/remove-styles!)
-  (inject-global-styles!)
-  (render))
+  (css/remove-styles!))
 
 (mount)

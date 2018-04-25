@@ -7,10 +7,9 @@
             :min-lein-version "2.7.1"
 
             :dependencies [[org.clojure/clojure "1.9.0"]
-                           [org.clojure/clojurescript "1.9.946"]
-                           [rum "0.10.8"]
-                           [reagent "0.7.0"]
-                           [org.omcljs/om "1.0.0-beta1"]]
+                           [org.clojure/clojurescript "1.10.238"]
+                           [rum "0.11.2"]
+                           [devcards "0.2.4"]]
 
             :plugins [[lein-figwheel "0.5.13"]
                       [lein-cljsbuild "1.1.7" :exclusions [[org.clojure/clojure]]]]
@@ -21,7 +20,7 @@
                         [{:id           "dev"
                           :source-paths ["src" "../src"]
                           :figwheel     {:on-jsload example.core/mount
-                                         :open-urls ["http://localhost:3450/index.html"]}
+                                         :devcards  true}
                           :compiler     {:main                 example.core
                                          :asset-path           "js/compiled/out"
                                          :output-to            "resources/public/js/compiled/example.js"
