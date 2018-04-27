@@ -316,6 +316,8 @@ Set `goog.DEBUG` to `false` to enable fast path styles injection.
  {:closure-defines {"goog.DEBUG" false}}}
 ```
 
+_NOTE: production build enables fast pass styles injection which makes those styles invisible in `<style>` tag on a page._
+
 ## Roadmap
 - Server-side rendering
 
