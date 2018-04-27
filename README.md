@@ -112,6 +112,15 @@ Because this pattern is so common there's a special treatment for predicate attr
 (MenuItem {:active? true})
 ```
 
+### pseudo-classes
+CSS pseudo classes can be added using parent selector syntax `&` which is popular in CSS pre-processors.
+```clojure
+(defstyles button [bg]
+  {:font-size "14px"
+   :background-color blue
+   :&:hover {:background-color light-blue}})
+```
+
 ### `:css` attribute
 
 `:css` attribute allows to define styles inline and still benefit from CSS-in-JS approach.
