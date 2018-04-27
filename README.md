@@ -20,6 +20,7 @@ Ask questions on #cljss chat at [Clojuarians Slack](http://clojurians.net/)
 - [Features](#features)
 - [How it works](#how-it-works)
 - [Usage](#usage)
+- [Composing styles](#composing-styles)
 - [Development workflow](#development-workflow)
 - [Production build](#production-build)
 - [Roadmap](#roadmap)
@@ -285,6 +286,24 @@ Dynamically injected CSS:
   --css-43697-0: 8px;
   --css-43697-1: 8px;
 }
+```
+
+## Composing styles
+
+Because CSS is generated at compile-time it's not possible to compose styles as data, as you would normally do it in Clojure. At run-time, in ClojureScript, you'll get functions that inject generated CSS and give back a class name. Hence composition is possibly by combining together those class names.
+
+```clojure
+(defstyles margin [& {:keys [x y]}]
+  {:margin-top    y
+   :margin-bottom y
+   :margin-left   x
+   :margin-right  x})
+   
+(defstyles button [bg]
+  {:padding "8px 24px"
+   :background-color bg})
+   
+(clojure.string/join " " [(button "blue") (margin :y "16px")]) ;; ".css-817263 .css-912834"
 ```
 
 ## Development workflow
