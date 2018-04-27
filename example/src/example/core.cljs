@@ -2,7 +2,7 @@
   (:require [rum.core :as rum]
             [cljss.core :as css :refer [inject-global]]
             [cljss.rum :refer-macros [defstyled]]
-            [devcards.core :as dc :refer [defcard]]
+            [devcards.core :as dc :refer-macros [defcard]]
             [sablono.core :refer [html]]))
 
 ;; utils

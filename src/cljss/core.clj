@@ -5,7 +5,8 @@
             [cljss.builder :refer [status? build-styles]]
             [cljss.collect :refer [dynamic?]]
             [clojure.string :as cstr]
-            [sablono.cljss-compiler]))
+            [sablono.cljss-compiler]
+            [cljss.specs]))
 
 (defn- ->status-styles [styles]
   (let [status (filterv status? styles)
