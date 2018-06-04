@@ -1,9 +1,15 @@
 (ns example.core
+  (:require-macros [cljss.core :refer [set-runtime!]])
   (:require [rum.core :as rum]
             [cljss.core :as css :refer [inject-global]]
             [cljss.rum :refer-macros [defstyled]]
             [devcards.core :as dc :refer-macros [defcard]]
-            [sablono.core :refer [html]]))
+            [sablono.core :refer [html]]
+            [cljss.runtime]))
+
+
+
+(set-runtime! true)
 
 ;; utils
 (defn space-between [space items]
@@ -55,7 +61,10 @@
           :border-radius "5px"
           :padding "8px 24px"
           :font-size "14px"
-          :color "#fff"}}
+          :color "#fff"
+          :&:hover {:color "black"
+                    :cursor "pointer"}
+          :&:focus {:outline "none"}}}
    child])
 
 ;; cards

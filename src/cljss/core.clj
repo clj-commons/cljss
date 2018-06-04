@@ -8,6 +8,12 @@
             [sablono.cljss-compiler]
             [cljss.specs]))
 
+(def runtime? (atom false))
+
+(defmacro set-runtime! [v]
+  (reset! runtime? v)
+  nil)
+
 (defn- ->status-styles [styles]
   (let [status (filterv status? styles)
         sprops (keys status)]
