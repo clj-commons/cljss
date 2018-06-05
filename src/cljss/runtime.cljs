@@ -21,13 +21,16 @@
         styles-block (str "." cls "{" styles-str "}" pseudo)]
     styles-block))
 
-(defn build-styles [styles]
-  (let [id (str "css-" (hash styles))]
-    (if-some [css (get cache id)]
-      [id css]
-      (let [css (interpret-styles-map id styles)]
-        (swap! cache assoc id css)
-        [id css]))))
+(defn build-styles
+  ([styles]
+   (build-styles nil styles))
+  ([cls styles]
+   (let [id (or cls (str "css-" (hash styles)))]
+     (if-some [css (get cache id)]
+       [id css]
+       (let [css (interpret-styles-map id styles)]
+         (swap! cache assoc id css)
+         [id css])))))
 
 (comment
   (let [[cls static] (build-styles {:margin 0})]

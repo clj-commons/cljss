@@ -1,7 +1,7 @@
 (ns example.core
   (:require-macros [cljss.core :refer [set-runtime!]])
   (:require [rum.core :as rum]
-            [cljss.core :as css :refer [inject-global]]
+            [cljss.core :as css :refer [inject-global defstyles]]
             [cljss.rum :refer-macros [defstyled]]
             [devcards.core :as dc :refer-macros [defcard]]
             [sablono.core :refer [html]]
@@ -25,12 +25,15 @@
    :red "#EF7564"
    :yellow "#F5DD29"})
 
+(defstyles text-styles [size]
+  {:font-family "Helvetica Neue"
+   :font-size size})
+
 (rum/defc Text
   [{:keys [size]}
    child]
   [:div
-   {:css {:font-family "Helvetica Neue"
-          :font-size size}}
+   {:class (text-styles size)}
    child])
 
 (defn P [opts child]

@@ -51,10 +51,16 @@
    Returns a function that calls `cljss.core/css` to inject styles at runtime
    and returns generated class name."
   [var args styles]
-  (let [cls-name# (var->cls-name var)
-        [_ static# vals#] (build-styles cls-name# styles)]
-    `(defn ~var ~args
-       (cljss.core/css ~cls-name# ~static# ~vals#))))
+  (let [cls-name# (var->cls-name var)]
+    (if @runtime?
+      `(defn ~var ~args
+         (let [styles# ~styles
+               cls-name# (str ~cls-name# "-" (hash styles#))
+               [cls# static#] (cljss.runtime/build-styles cls-name# styles#)]
+           (cljss.core/css cls# static# [])))
+      (let [[_ static# vals#] (build-styles cls-name# styles)]
+        `(defn ~var ~args
+           (cljss.core/css ~cls-name# ~static# ~vals#))))))
 
 (defn- vals->array [vals]
   (let [arrseq (mapv (fn [[var val]] `(cljs.core/array ~var ~val)) vals)]
