@@ -13,9 +13,10 @@ Ask questions on #cljss chat at [Clojuarians Slack](http://clojurians.net/)
   <img src="https://c5.patreon.com/external/logo/become_a_patron_button.png" height="40px" />
 </a>
 
-`[org.roman01la/cljss "1.6.2"]`
+`[org.roman01la/cljss "1.6.3"]`
 
 ## Table of Contents
+
 - [Why write CSS in ClojureScript?](#why-write-css-in-clojurescript)
 - [Features](#features)
 - [How it works](#how-it-works)
@@ -39,10 +40,12 @@ Thease are some resources that can give you more context:
 - [“The road to styled components: CSS in component-based systems”](https://www.youtube.com/watch?v=MT4D_DioYC8) by Glen Maddern
 
 ## Features
+
 - Automatic scoped styles by generating unique names
 - CSS pseudo-classes and pseudo-elements
 - CSS animations via `@keyframes` at-rule
 - CSS Media Queries
+- Nested CSS selectors
 - Injects styles into `<style>` tag at run-time
 - Debuggable styles in development (set via `goog.DEBUG`)
 - Fast, 10000 insertions in ~200ms
@@ -97,6 +100,7 @@ _NOTE: Dynamic props that are used only to compute styles are also passed onto R
 #### predicate attributes in `defstyled`
 
 Sometimes you want toggle between two values. In this example a menu item can switch between active and non-active styles using `:active?` attribute.
+
 ```clojure
 (defstyled MenuItem :li
   {:color (with-meta #(if % "black" "grey") :active?)})
@@ -105,6 +109,7 @@ Sometimes you want toggle between two values. In this example a menu item can sw
 ```
 
 Because this pattern is so common there's a special treatment for predicate attributes (keywords ending with `?`) in styles definition.
+
 ```clojure
 (defstyled MenuItem :li
   {:color "grey"
@@ -114,12 +119,28 @@ Because this pattern is so common there's a special treatment for predicate attr
 ```
 
 ### pseudo-classes
-CSS pseudo classes can be added using parent selector syntax `&` which is popular in CSS pre-processors.
+
+CSS pseudo classes can be expressed as a keyword using parent selector syntax `&` which is popular in CSS pre-processors or as a string if selector is not a valid keyword e.g. `&:nth-child(4)`.
+
 ```clojure
 (defstyles button [bg]
   {:font-size "14px"
    :background-color blue
-   :&:hover {:background-color light-blue}})
+   :&:hover {:background-color light-blue}
+   "&:nth-child(3)" {:color "blue"}})
+```
+
+### Nested selectors
+
+Sometimes when you want to override library styles you may want to refer to DOM node via its class name, tag or whatever. For this purpose you can use nested CSS selectors via string key.
+
+```clojure
+(defstyles error-form []
+  {:border "1px solid red"
+   ".material-ui--input" {:color "red"}})
+
+[:form {:class (error-form)} ;; .css-817253 {border: 1px solid red}
+ (mui/Input)] ;; .css-817253 .material-ui--input {color: red}
 ```
 
 ### `:css` attribute
@@ -152,7 +173,7 @@ _NOTE: This feature is supported only for Rum/Sablono elements_
 
 `font-face` macro allows to define custom fonts via `@font-face` CSS at-rule. The macro generates CSS string and injects it at runtime. The syntax is defined in example below.
 
-_The macro supports referring to styles declaration in a separate *.clj namespace._
+_The macro supports referring to styles declaration in a separate \*.clj namespace._
 
 ```clojure
 (require '[cljss.core :refer [font-face]])
@@ -176,7 +197,7 @@ _The macro supports referring to styles declaration in a separate *.clj namespac
 
 `inject-global` macro allows to defined global styles, such as to reset user agent default styles. The macro generates CSS string and injects it at runtime. The syntax is defined in example below.
 
-_The macro supports referring to styles declaration in a separate *.clj namespace._
+_The macro supports referring to styles declaration in a separate \*.clj namespace._
 
 ```clojure
 (require '[cljss.core :refer [inject-global]])
@@ -208,28 +229,34 @@ The syntax is specified as of [CSS Media Queries Level 4 spec](https://www.w3.or
 More examples of a query:
 
 #### Boolean query
+
 ```clojure
 [[:monochrome]]
 ```
 
 #### Simple conditional query
+
 ```clojure
 [[:max-width "460px"]]
 ```
 
 #### Multiple (comma separated) queries
+
 ```clojure
 [[:screen :and [:max-width "460px"]]
  [:print :and [:color]]]
 ```
 
 #### Basic range query
+
 _Supported operators for range queries_ `#{'= '< '<= '> '>=}`
+
 ```clojure
 '[[:max-width > "400px"]]
 ```
 
 #### Complex range query
+
 ```clojure
 '[["1200px" >= :max-width > "400px"]]
 ```
@@ -260,6 +287,7 @@ _Supported operators for range queries_ `#{'= '< '<= '> '>=}`
 - `styles` a hash map of styles definition
 
 Using [Sablono](https://github.com/r0man/sablono) templating for [React](https://facebook.github.io/react/)
+
 ```clojure
 (ns example.core
   (:require [sablono.core :refer [html]]
@@ -276,6 +304,7 @@ Using [Sablono](https://github.com/r0man/sablono) templating for [React](https:/
 ```
 
 Dynamically injected CSS:
+
 ```css
 .css-43697 {
   padding: 16px;
@@ -298,18 +327,17 @@ Because CSS is generated at compile-time it's not possible to compose styles as 
    :margin-bottom y
    :margin-left   x
    :margin-right  x})
-   
+
 (defstyles button [bg]
   {:padding "8px 24px"
    :background-color bg})
-   
+
 (clojure.string/join " " [(button "blue") (margin :y "16px")]) ;; ".css-817263 .css-912834"
 ```
 
 ## Development workflow
 
 When developing with Figwheel in order to deduplicate styles between reloads it is recommended to use Figwheel's `:on-jsload` hook to clean injected styles.
-
 
 ```clojure
 :figwheel {:on-jsload example.core/on-reload}
@@ -338,14 +366,15 @@ Set `goog.DEBUG` to `false` to enable fast path styles injection.
 _NOTE: production build enables fast pass styles injection which makes those styles invisible in `<style>` tag on a page._
 
 ## Roadmap
+
 - Server-side rendering
 
 ## Contributing
+
 - Pick an issue with `help wanted` label (make sure no one is working on it)
 - Stick to project's code style as much as possible
 - Make small commits with descriptive commit messages
 - Submit a PR with detailed description of what was done
-
 
 ## Development
 

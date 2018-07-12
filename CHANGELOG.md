@@ -1,3 +1,9 @@
+## 1.6.3
+- Spec macros
+- Add `deps.edn`
+- Fix multiple style blocks not being inserted into the DOM
+- Add **limited** support for nested selectors `{"a" {:color "red"}}`
+
 ## 1.6.2
 - Added ability to refer to styles in *.clj namespaces for `inject-global` and `font-face` macros
 
