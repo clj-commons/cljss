@@ -140,6 +140,13 @@
   (text-field {:width  "300px"
                :height "140px"}))
 
+(defcard Selectors
+  (html
+    [:ul
+     [:li {:css {"&:first-child" {:color "red"}}} "first-child"]
+     [:li {:css {".link" {:color "green"}}}
+      [:a.link {:href "#"} "nested element with .link class name"]]]))
+
 (defn mount []
   (css/remove-styles!))
 

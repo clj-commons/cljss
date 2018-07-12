@@ -7,6 +7,10 @@
   (and (re-matches #"&:.*" (name rule))
        (map? value)))
 
+(defn nested? [[rule value]]
+  (and (string? rule)
+       (map? value)))
+
 (defn literal? [x]
   (or (string? x) (number? x)))
 
