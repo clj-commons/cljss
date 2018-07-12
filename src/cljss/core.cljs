@@ -1,6 +1,6 @@
 (ns cljss.core
   (:require [cljss.sheet :refer [create-sheet insert! filled? flush!]]
-            [cljss.utils :refer [build-css]]
+            [cljss.utils :refer [build-css dev?]]
             [clojure.string :as cstr]))
 
 (def ^:private sheets (atom (list (create-sheet))))
@@ -20,12 +20,12 @@
         (swap! sheets conj (create-sheet))
         (css cls static vars))
       (do
-        (loop [[s & static] static]
-          (if (seq static)
-            (do
-              (insert! sheet s cls)
-              (recur static))
-            (insert! sheet s cls)))
+        (loop [[s & static] static
+               idx 0]
+          (let [cls (str cls "-" idx)]
+            (insert! sheet s cls)
+            (when-not (empty? static)
+              (recur static (inc idx)))))
         (if (pos? (count vars))
           (let [var-cls (str "vars-" (hash vars))]
             (insert! sheet #(build-css var-cls vars) var-cls)
@@ -109,13 +109,13 @@
 
 (defn -styled [cls static vars attrs create-element]
   (let [clsn (str cls "-" (gensym))
-        static (if ^boolean goog.DEBUG
-                 (cstr/replace static cls clsn)
+        static (if ^boolean dev?
+                 (map #(cstr/replace % cls clsn) static)
                  static)
-        vars (if ^boolean goog.DEBUG
+        vars (if ^boolean dev?
                (->> vars (map (fn [[k v]] [(cstr/replace k cls clsn) v])))
                vars)
-        cls (if ^boolean goog.DEBUG clsn cls)]
+        cls (if ^boolean dev? clsn cls)]
     (fn [props & children]
       (let [[props children] (if (map? props)
                                (array props children)

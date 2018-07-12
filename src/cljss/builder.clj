@@ -24,12 +24,20 @@
                      (into vals)
                      (concat mvals)
                      (into []))
-        static  (apply str static (map first pstyles))
-        static  (str static mstatic)]
+        static (into [static] (map first pstyles))
+        static (if mstatic
+                 (conj static mstatic)
+                 static)]
     [cls static vals]))
 
 (comment
   (build-styles
     "hello"
-    {:cljss.core/media {{:max-width 'sa :min-width 'l} {:font-size 'a
-                                                        :&:hover   {:margin 'b}}}}))
+    {:background    'color
+     :width         "100px"
+     :height        "100px"
+     :border-radius "5px"
+     :padding       "8px"
+     :cljss.core/media    {[[:max-width "740px"]]
+                           {:width  "64px"
+                            :height "64px"}}}))

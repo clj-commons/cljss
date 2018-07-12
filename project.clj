@@ -54,5 +54,6 @@
                             :devcards        true
                             :optimizations   :advanced
                             :closure-defines {"goog.DEBUG" false}
+                            :pseudo-names    true
                             :verbose         true
                             :pretty-print    false}}]})
