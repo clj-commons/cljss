@@ -6,9 +6,8 @@
   :license {:name "Eclipse Public License"
             :url  "http://www.eclipse.org/legal/epl-v10.html"}
 
-  :dependencies [[org.clojure/clojure "1.9.0" :scope "provided"]
-                 [org.clojure/test.check "0.10.0-alpha2"]
-                 [org.clojure/clojurescript "1.9.946" :scope "provided"]
+  :dependencies [[org.clojure/clojure "1.9.0"]
+                 [org.clojure/clojurescript "1.10.339"]
                  [sablono "0.8.1"]]
 
   :test-paths ["test/clj"]
