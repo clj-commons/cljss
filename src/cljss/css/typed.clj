@@ -108,7 +108,6 @@
   [[_ value]]
   (compile-typed-css value))
 
-(defmethod compile-typed-css :number-value)
 (defmethod compile-typed-css :number-value
   [[_ value]]
   value)

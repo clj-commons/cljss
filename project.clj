@@ -36,7 +36,7 @@
                             :main          cljss.runner
                             :optimizations :none}}
             {:id           "example"
-             :source-paths ["src" "example/src"]
+             :source-paths ["src" "example/src" "example/resources"]
              :figwheel     {:on-jsload example.core/mount
                             :devcards  true}
              :compiler     {:main                 example.core
@@ -47,10 +47,11 @@
                             :preloads             [devtools.preload]}}
 
             {:id           "example-min"
-             :source-paths ["src" "example/src"]
+             :source-paths ["src" "example/src" "example/resources"]
              :compiler     {:output-to       "example/resources/public/js/compiled/example.js"
                             :output-dir      "example/resources/public/js/compiled/out-min"
                             :main            example.core
+                            :devcards        true
                             :optimizations   :advanced
                             :closure-defines {"goog.DEBUG" false}
                             :verbose         true

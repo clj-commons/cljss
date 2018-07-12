@@ -1,10 +1,8 @@
 (ns example.core
   (:require [rum.core :as rum]
-            [cljss.core :as css :refer [inject-global defstyles]]
-            [cljss.rum :refer-macros [defstyled]]
-            [devcards.core :refer-macros [defcard]]
-            [sablono.core :refer [html]]
-            [cljss.runtime]))
+            [cljss.core :as css :refer-macros [inject-global defstyles]]
+            [devcards.core :refer-macros [defcard start-devcard-ui!]]
+            [sablono.core :refer [html]]))
 
 ;; utils
 (defn space-between [space items]
@@ -101,3 +99,5 @@
   (css/remove-styles!))
 
 (mount)
+
+(start-devcard-ui!)
