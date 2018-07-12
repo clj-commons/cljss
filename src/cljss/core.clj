@@ -8,12 +8,6 @@
             [sablono.cljss-compiler]
             [cljss.specs]))
 
-(def runtime? (atom false))
-
-(defmacro set-runtime! [v]
-  (reset! runtime? v)
-  nil)
-
 (defn- ->status-styles [styles]
   (let [status (filterv status? styles)
         sprops (keys status)]
@@ -52,15 +46,9 @@
    and returns generated class name."
   [var args styles]
   (let [cls-name# (var->cls-name var)]
-    (if @runtime?
+    (let [[_ static# vals#] (build-styles cls-name# styles)]
       `(defn ~var ~args
-         (let [styles# ~styles
-               cls-name# (str ~cls-name# "-" (hash styles#))
-               [cls# static#] (cljss.runtime/build-styles cls-name# styles#)]
-           (cljss.core/css cls# static# [])))
-      (let [[_ static# vals#] (build-styles cls-name# styles)]
-        `(defn ~var ~args
-           (cljss.core/css ~cls-name# ~static# ~vals#))))))
+         (cljss.core/css ~cls-name# ~static# ~vals#)))))
 
 (defn- vals->array [vals]
   (let [arrseq (mapv (fn [[var val]] `(cljs.core/array ~var ~val)) vals)]

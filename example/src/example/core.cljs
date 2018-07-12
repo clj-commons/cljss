@@ -1,15 +1,10 @@
 (ns example.core
-  (:require-macros [cljss.core :refer [set-runtime!]])
   (:require [rum.core :as rum]
             [cljss.core :as css :refer [inject-global defstyles]]
             [cljss.rum :refer-macros [defstyled]]
-            [devcards.core :as dc :refer-macros [defcard]]
+            [devcards.core :refer-macros [defcard]]
             [sablono.core :refer [html]]
             [cljss.runtime]))
-
-
-
-(set-runtime! true)
 
 ;; utils
 (defn space-between [space items]
