@@ -1,4 +1,5 @@
 (ns example.core
+  (:require-macros [cljss.core])
   (:require [rum.core :as rum]
             [cljss.core :as css :refer-macros [defstyles defkeyframes]]
             [cljss.rum :refer-macros [defstyled]]
