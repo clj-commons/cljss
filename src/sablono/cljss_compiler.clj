@@ -5,9 +5,10 @@
 
 (defn- compile-class [class styles]
   (let [cls (str "css-" (hash styles))
-        gen-class `(apply cljss.core/css ~(builder/build-styles cls styles))]
+        gen-class `(cljss.core/css ~@(builder/build-styles cls styles))]
     (if (seq class)
-      `(apply str ~gen-class " " ~@(interpose " " class))
+      `(str ~gen-class " " ~@(->> (mapcat identity class)
+                                  (interpose " ")))
       gen-class)))
 
 (defn- normalize-attr [tag name type]
