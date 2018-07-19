@@ -337,6 +337,8 @@ Because CSS is generated at compile-time it's not possible to compose styles as 
 
 ## Development workflow
 
+If you see that styles are not being reloaded, add `(:require-macros [cljss.core])`, this should do the job.
+
 When developing with Figwheel in order to deduplicate styles between reloads it is recommended to use Figwheel's `:on-jsload` hook to clean injected styles.
 
 ```clojure
