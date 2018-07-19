@@ -56,4 +56,15 @@
                             :closure-defines {"goog.DEBUG" false}
                             :pseudo-names    true
                             :verbose         true
-                            :pretty-print    false}}]})
+                            :pretty-print    false}}
+            {:id           "perf"
+             :source-paths ["src" "example/src" "example/resources"]
+             :compiler     {:output-to        "example/resources/public/js/compiled/perf.js"
+                            :output-dir       "example/resources/public/js/compiled/out-perf"
+                            :main             example.perf
+                            :optimizations    :advanced
+                            :closure-defines  {"goog.DEBUG" false}
+                            :static-fns       true
+                            :fn-invoke-direct true
+                            :verbose          true
+                            :pretty-print     false}}]})

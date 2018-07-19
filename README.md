@@ -48,7 +48,7 @@ Thease are some resources that can give you more context:
 - Nested CSS selectors
 - Injects styles into `<style>` tag at run-time
 - Debuggable styles in development (set via `goog.DEBUG`)
-- Fast, 10000 insertions in ~200ms
+- Fast, 1000 insertions in under 100ms
 
 ## How it works
 
