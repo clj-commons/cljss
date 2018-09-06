@@ -1,5 +1,5 @@
 (ns cljss.core
-  (:require [cljss.utils :refer [build-css escape-val resolve-get]]
+  (:require [cljss.utils :as utils :refer [build-css escape-val resolve-get cljs-env?]]
             [cljss.font-face :as ff]
             [cljss.inject-global :as ig]
             [cljss.builder :refer [status? build-styles]]
@@ -19,7 +19,7 @@
          (group-by first)
          (map (fn [[rule states]]
                 (let [svals (map last states)
-                      args (mapv (fn [_] (gensym "var")) svals)]
+                      args  (mapv (fn [_] (gensym "var")) svals)]
                   [rule
                    `(with-meta
                       (fn ~args
@@ -33,22 +33,40 @@
          (merge styles)
          (#(apply dissoc % sprops)))))
 
-(defmacro var->cls-name [sym]
+(defn normalize-class [cls sym]
+  (-> cls
+      (clojure.core/str "/" sym)
+      (clojure.string/replace "." "_")
+      (clojure.string/replace "/" "__")))
+
+(defmacro sym->cls-name [sym]
   `(-> ~'&env :ns :name (clojure.core/str "/" ~sym) (clojure.string/replace "." "_") (clojure.string/replace "/" "__")))
 
-(defmacro var->cmp-name [sym]
+(defn var->cls-name [var]
+  (-> (resolve var) meta :ns str (normalize-class var)))
+
+(defmacro sym->cmp-name [sym]
   `(-> ~'&env :ns :name (clojure.core/str "." ~sym)))
+
+(defn var->cmp-name [var]
+  (-> (resolve var) meta :ns :name (clojure.core/str "." var)))
 
 (defmacro defstyles
   "Takes var name, a vector of arguments and a hash map of styles definition.
    Generates class name, static and dynamic parts of styles.
    Returns a function that calls `cljss.core/css` to inject styles at runtime
    and returns generated class name."
-  [var args styles]
-  (let [cls-name# (var->cls-name var)]
+  [sym args styles]
+  (let [cls-name# (if (cljs-env? &env)
+                    (sym->cls-name sym)
+                    (var->cls-name sym))]
     (let [[_ static# vals#] (build-styles cls-name# styles)]
-      `(defn ~var ~args
-         (cljss.core/css ~cls-name# ~static# ~vals#)))))
+      (if-not (cljs-env? &env)
+        `(defn ~sym ~args
+           (cljss.ssr/add-css ~cls-name# ~static#)
+           ~cls-name#)
+        `(defn ~sym ~args
+           (cljss.core/css ~cls-name# ~static# ~vals#))))))
 
 (defn- vals->array [vals]
   (let [arrseq (mapv (fn [[var val]] `(cljs.core/array ~var ~val)) vals)]
@@ -58,20 +76,39 @@
   "Takes var name, HTML tag name and a hash map of styles definition.
    Returns a var bound to the result of calling `cljss.core/styled`,
    which produces React element and injects styles."
-  [tag styles cls]
-  (let [tag (name tag)
+  [tag styles cls env]
+  (let [tag    (name tag)
         styles (->status-styles styles)
         [_ static values] (build-styles cls styles)
-        values (vals->array values)
-        attrs (->> styles vals (filterv keyword?))]
-    [tag static values `(cljs.core/array ~@attrs)]))
+        values (if (cljs-env? env)
+                 (vals->array values)
+                 values)
+        attrs  (->> styles vals (filterv keyword?))]
+    (if (cljs-env? env)
+      [tag static values `(cljs.core/array ~@attrs)]
+      [tag static values attrs])))
+
+(defn -styled [tag cls static vars attrs]
+  (let [cls (str cls "-" (gensym))]
+    (fn [props & children]
+      (let [[props children] (if (map? props)
+                               [props children]
+                               [{} (into [props] children)])
+            [var-class static vars] (utils/-mk-var-class props vars cls static)
+            meta-attrs (utils/-meta-attrs vars)
+            className  (str (utils/-compile-class-name props) var-class)
+            props      (-> (apply dissoc props (concat attrs meta-attrs [:class :class-name :className]))
+                           (assoc :className className)
+                           utils/-camel-case-attrs)]
+        (cljss.ssr/add-css var-class static vars)
+        [tag props children]))))
 
 (defmacro make-styled []
   '(def styled cljss.core/-styled))
 
 (defn- keyframes-styles [idx styles]
   (let [dynamic (filterv dynamic? styles)
-        static (filterv (comp not dynamic?) styles)
+        static  (filterv (comp not dynamic?) styles)
         [vars idx]
         (reduce
           (fn [[vars idx] [rule]]
@@ -79,13 +116,13 @@
              (inc idx)])
           [[] idx]
           dynamic)
-        vals (mapv (fn [[_ var] [_ exp]] [(str "var(" var ")") exp]) vars dynamic)
-        static (->> vars
-                    (map (fn [[rule var]] [rule (str "var(" var ")")]))
-                    (concat static)
-                    (map (fn [[rule val]] (str (name rule) ":" (escape-val rule val) ";")))
-                    (cstr/join "")
-                    (#(str "{" % "}")))]
+        vals    (mapv (fn [[_ var] [_ exp]] [(str "var(" var ")") exp]) vars dynamic)
+        static  (->> vars
+                     (map (fn [[rule var]] [rule (str "var(" var ")")]))
+                     (concat static)
+                     (map (fn [[rule val]] (str (name rule) ":" (escape-val rule val) ";")))
+                     (cstr/join "")
+                     (#(str "{" % "}")))]
     [static vals idx]))
 
 (defn- ->ks-key [k]
@@ -117,7 +154,7 @@
 
   (defstyled Spinner :div\n    {:animation (str (spin 0 180) \" 1s ease infinite\")})"
   [var args keyframes]
-  (let [cls# (var->cls-name var)
+  (let [cls# (sym->cls-name var)
         [keyframes# vals#] (build-keyframes keyframes)]
     `(defn ~var ~args
        (cljss.core/css-keyframes ~cls# ~keyframes# ~vals#))))
