@@ -1,7 +1,8 @@
 (ns cljss.ssr
   (:require [clojure.string :as cstr]
             [rum.server-render :as rsr]
-            [cljss.builder :as builder])
+            [cljss.builder :as builder]
+            [cljss.utils :as utils])
   (:import (clojure.lang ISeq IPersistentVector)))
 
 (def ^:dynamic *ssr-ctx*)
@@ -10,17 +11,19 @@
   ([class styles]
    (add-css class styles []))
   ([class styles vars]
-   (->> vars
-        (reduce (fn [ret [cls value]]
-                  (cstr/replace ret (str "var(" cls ")") value))
-                (cstr/join styles))
-        vector
-        (swap! *ssr-ctx* assoc-in [:styles class]))))
+   (let [s (cstr/join styles)]
+     (swap! *ssr-ctx* assoc-in [:styles class] s)
+     (if-not (empty? vars)
+       (let [var-cls (str "vars-" (hash vars))
+             s       (utils/build-css var-cls vars)]
+         (swap! *ssr-ctx* assoc-in [:styles var-cls] s)
+         (str class " " var-cls))
+       class))))
 
 (defn compile-class [classes styles]
-  (let [cls (str "css-" (hash styles))
-        [class styles] (builder/build-styles cls styles)]
-    (add-css class styles)
+  (let [cls   (str "css-" (hash styles))
+        [class styles] (builder/build-styles cls styles)
+        class (add-css class styles)]
     (cstr/join [classes class])))
 
 (defn normalize-element [[first second & rest]]
@@ -56,11 +59,12 @@
             attrs (-> attrs
                       (assoc :class class)
                       (dissoc :css))]
-        `[~tag ~attrs ~@(map walk-hiccup children)])
-      `[~tag ~attrs ~@(map walk-hiccup children)])))
+        `[~tag ~attrs ~@(doall (map walk-hiccup children))])
+      `[~tag ~attrs ~@(doall (map walk-hiccup children))])))
 
 (defmethod walk-hiccup ISeq [elements]
-  (map walk-hiccup elements))
+  (-> (map walk-hiccup elements)
+      doall))
 
 (defn ctx->css-str [ctx]
   (->> ctx :styles vals (map cstr/join) cstr/join))

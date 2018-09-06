@@ -6,7 +6,8 @@
             [cljss.collect :refer [dynamic?]]
             [clojure.string :as cstr]
             [sablono.cljss-compiler]
-            [cljss.specs]))
+            [cljss.specs]
+            [cljss.ssr :as ssr]))
 
 (defn- ->status-styles [styles]
   (let [status (filterv status? styles)
@@ -63,8 +64,7 @@
     (let [[_ static# vals#] (build-styles cls-name# styles)]
       (if-not (cljs-env? &env)
         `(defn ~sym ~args
-           (cljss.ssr/add-css ~cls-name# ~static#)
-           ~cls-name#)
+           (cljss.ssr/add-css ~cls-name# ~static# ~vals#))
         `(defn ~sym ~args
            (cljss.core/css ~cls-name# ~static# ~vals#))))))
 
@@ -100,7 +100,7 @@
             props      (-> (apply dissoc props (concat attrs meta-attrs [:class :class-name :className]))
                            (assoc :className className)
                            utils/-camel-case-attrs)]
-        (cljss.ssr/add-css var-class static vars)
+        (ssr/add-css var-class static vars)
         [tag props children]))))
 
 (defmacro make-styled []
@@ -143,7 +143,18 @@
                [[] [[] [] 1]]))]
     [(->> (interleave ks statics)
           (apply str))
-     `(cljs.core/array ~@(map (fn [v] `(cljs.core/array ~@v)) vals))]))
+     vals]))
+
+(defn -css-keyframes [cls static vars]
+  (let [inner
+                  (reduce
+                    (fn [s [id val]] (cstr/replace s id val))
+                    static
+                    vars)
+        anim-name (str "animation-" cls "-" (hash vars))
+        keyframes (str "@keyframes " anim-name "{" inner "}")]
+    (swap! ssr/*ssr-ctx* assoc-in [:styles anim-name] keyframes)
+    anim-name))
 
 (defmacro defkeyframes
   "Takes var name, a vector of arguments and a hash map of CSS keyframes definition.
@@ -156,8 +167,11 @@
   [var args keyframes]
   (let [cls# (sym->cls-name var)
         [keyframes# vals#] (build-keyframes keyframes)]
-    `(defn ~var ~args
-       (cljss.core/css-keyframes ~cls# ~keyframes# ~vals#))))
+    (if-not (cljs-env? &env)
+      `(defn ~var ~args
+         (-css-keyframes ~cls# ~keyframes# ~vals#))
+      `(defn ~var ~args
+         (cljss.core/css-keyframes ~cls# ~keyframes# ~vals#)))))
 
 (defmacro font-face
   "Takes a hash of font descriptors and produces CSS string of @font-face declaration.

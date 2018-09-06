@@ -33,6 +33,17 @@
                :&:focus       {:outline "none"}}}
    child])
 
+(css/defstyles Color [color]
+  {:background    color
+   :width         "100px"
+   :height        "100px"
+   :border-radius "5px"
+   :padding       "8px"
+   :&:hover       {:border "1px solid blue"}
+   ::css/media    {[[:max-width "740px"]]
+                   {:width  "64px"
+                    :height "64px"}}})
+
 (rum/defcs Colors <
   (rum/local {:colors colors} :state)
   [{state :state}]
@@ -40,16 +51,7 @@
                :justify-content "space-between"}}
 
    (for [[_ color] (:colors @state)]
-     [:div
-      {:css {:background    color
-             :width         "100px"
-             :height        "100px"
-             :border-radius "5px"
-             :padding       "8px"
-             :&:hover       {:border "1px solid blue"}
-             ::css/media    {[[:max-width "740px"]]
-                             {:width  "64px"
-                              :height "64px"}}}}
+     [:div {:class (Color color)}
       color])])
 
 (css/defstyles text-styles [size]
@@ -97,6 +99,10 @@
    "l"  "32px"
    "xl" "64px"})
 
+(css/defkeyframes spin []
+  {:from {:transform "rotate(0deg)"}
+   :to   {:transform "rotate(360deg)"}})
+
 (rum/defc spinner
   [{:keys [size color]}]
   [:div {:css {:width         (spinner-sizes size)
@@ -106,7 +112,7 @@
                :border-left   "2px solid rgba(0,0,255,0.3)"
                :border-bottom "2px solid rgba(0,0,255,0.3)"
                :border-right  "2px solid rgba(0,0,255,0.3)"
-               :animation     (str '(spin) " 1500ms linear infinite")}}])
+               :animation     (str (spin) " 1500ms linear infinite")}}])
 
 (rum/defc Spinner []
   [:div
@@ -149,6 +155,7 @@
   (binding [ssr/*ssr-ctx* (atom {:styles {}})]
     (let [html    (app)
           [html css] (ssr/render-css html)
-          css-tag (str "<style>" css "</style>")]
-      (println css)
-      (rum/render-html html))))
+          css-tag (str "<style>" css "</style>")
+          html    (rum/render-html html)
+          html    (str css-tag html)]
+      (spit "index.html" html))))
