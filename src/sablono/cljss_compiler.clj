@@ -3,13 +3,22 @@
             [sablono.util :as sutil]
             [cljss.builder :as builder]))
 
+(defn gc [gen-class class]
+  (if (seq class)
+    `(str ~gen-class " " ~@(->> (mapcat identity class)
+                                (interpose " ")))
+
+    gen-class))
+
 (defn- compile-class [class styles]
   (let [cls (str "css-" (hash styles))
-        gen-class `(cljss.core/css ~@(builder/build-styles cls styles))]
-    (if (seq class)
-      `(str ~gen-class " " ~@(->> (mapcat identity class)
-                                  (interpose " ")))
-      gen-class)))
+        css (builder/build-styles cls styles)]
+    (if cljss.core/*exclude-static?*
+      (let [[cls static vals] css]
+        (swap! cljss.ssr/*ssr-ctx* assoc-in [:static cls] static)
+        (gc `(cljss.core/css ~cls "" ~vals) class))
+      (gc `(cljss.core/css ~@css) class))))
+
 
 (defn- normalize-attr [tag name type]
   (if (and (or (= name :on-change) (= name :onChange))

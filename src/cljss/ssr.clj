@@ -66,10 +66,10 @@
   (-> (map walk-hiccup elements)
       doall))
 
-(defn ctx->css-str [ctx]
-  (->> ctx :styles vals (map cstr/join) cstr/join))
+(defn ctx->css-str [styles]
+  (->> styles vals (map cstr/join) cstr/join))
 
 (defn render-css [html]
   (let [html (walk-hiccup html)
-        css  (ctx->css-str @*ssr-ctx*)]
+        css  (ctx->css-str (:styles @*ssr-ctx*))]
     [html css]))

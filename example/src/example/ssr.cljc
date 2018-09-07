@@ -2,7 +2,9 @@
   (:require [rum.core :as rum]
             [cljss.core :as css]
             [cljss.rum :refer [defstyled]]
-            [cljss.ssr :as ssr]))
+            [cljss.ssr :as ssr]
+            [sablono.core :refer [html]]
+            [clojure.string :as cstr]))
 
 (def colors
   {:blue   "#298FCA"
@@ -23,7 +25,7 @@
   [:button
    {:on-click on-click
     :css      {:background    (get button->color kind)
-               :border        0
+               :border        "none"
                :border-radius "5px"
                :padding       "8px 24px"
                :font-size     "14px"
@@ -115,13 +117,13 @@
                :animation     (str (spin) " 1500ms linear infinite")}}])
 
 (rum/defc Spinner []
-  [:div
+  [:div {}
    (spinner {:size "m" :color "blue"})
    (spinner {:size "l" :color "blue"})
    (spinner {:size "xl" :color "blue"})])
 
 (rum/defc Selectors []
-  [:ul
+  [:ul {}
    [:li {:css {"&:first-child" {:color "red"}}} "first-child"]
    [:li {:css {".link" {:color "green"}}}
     [:a.link {:href "#"} "nested element with .link class name"]]])
@@ -151,11 +153,38 @@
 ;;
 ;; =============================
 
+#?(:cljs
+   (rum/hydrate (app) (.querySelector js/document "#root")))
+
+#?(:clj
+   (defn render []
+     (binding [ssr/*ssr-ctx* (atom {:styles {}})]
+       (let [html     (app)
+             [html css] (ssr/render-css html)
+             css-tag  (str "<style>" css "</style>")        ;; inline critical CSS
+             css-link (str "<link rel=\"stylesheet\" href=\"/ssr.css\">") ;; serve all static styles
+             html     (rum/render-html html)
+             html     (str "<div id=\"root\">" html "</div>")
+             html     (str css-link
+                           css-tag
+                           html
+                           "<script src=\"/js/compiled/ssr.js\"></script>")]
+         (spit "example/resources/public/ssr.html" html)))))
+
 (comment
-  (binding [ssr/*ssr-ctx* (atom {:styles {}})]
-    (let [html    (app)
-          [html css] (ssr/render-css html)
-          css-tag (str "<style>" css "</style>")
-          html    (rum/render-html html)
-          html    (str css-tag html)]
-      (spit "index.html" html))))
+  (render))
+
+(comment
+  (require '[cljs.build.api :as b])
+  (binding [css/*exclude-static?* true
+            ssr/*ssr-ctx*         (atom {})]
+    (b/build
+      ["src" "example/src" "example/resources"]
+      {:output-to       "example/resources/public/js/compiled/ssr.js"
+       :output-dir      "example/resources/public/js/compiled/ssr-min"
+       :main            'example.ssr
+       :optimizations   :whitespace
+       :closure-defines {"goog.DEBUG" false}})
+    (->> (:static @ssr/*ssr-ctx*)
+         ssr/ctx->css-str
+         (spit "example/resources/public/ssr.css"))))

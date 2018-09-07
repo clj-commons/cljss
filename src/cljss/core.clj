@@ -9,6 +9,8 @@
             [cljss.specs]
             [cljss.ssr :as ssr]))
 
+(def ^:dynamic *exclude-static?*)
+
 (defn- ->status-styles [styles]
   (let [status (filterv status? styles)
         sprops (keys status)]
@@ -65,8 +67,13 @@
       (if-not (cljs-env? &env)
         `(defn ~sym ~args
            (cljss.ssr/add-css ~cls-name# ~static# ~vals#))
-        `(defn ~sym ~args
-           (cljss.core/css ~cls-name# ~static# ~vals#))))))
+        (if *exclude-static?*
+          (do
+            (swap! cljss.ssr/*ssr-ctx* assoc-in [:static cls-name#] static#)
+            `(defn ~sym ~args
+               (cljss.core/css ~cls-name# "" ~vals#)))
+          `(defn ~sym ~args
+             (cljss.core/css ~cls-name# ~static# ~vals#)))))))
 
 (defn- vals->array [vals]
   (let [arrseq (mapv (fn [[var val]] `(cljs.core/array ~var ~val)) vals)]

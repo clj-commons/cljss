@@ -54,7 +54,7 @@
                             :devcards        true
                             :optimizations   :advanced
                             :closure-defines {"goog.DEBUG" false}
-                            :pseudo-names    true
+                            :pseudo-names    false
                             :verbose         true
                             :pretty-print    false}}
             {:id           "perf"

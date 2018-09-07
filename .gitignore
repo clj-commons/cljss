@@ -18,3 +18,4 @@ out/
 resources/
 node_modules
 figwheel_server.log
+*.html
