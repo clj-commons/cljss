@@ -234,44 +234,43 @@
          (clojure.string/join " ")
          (str "@media "))))
 
-(defn compile-media-dispatch [styles]
+(defn compile-media-dispatch [styles _]
   (cond
     (contains? styles :media) :media
     (contains? styles :styles) :styles))
 
 (defmulti compile-media #'compile-media-dispatch)
 
-(defmethod compile-media :media [{media :media}]
+(defmethod compile-media :media [{media :media} cls]
   (->> (seq media)
        (reduce
          (fn [[sstyles svalues] [query styles]]
-           (let [[static values] (compile-media {:styles styles})
+           (let [[static values] (compile-media {:styles styles} cls)
                  query (-compile-media-query query)]
              [(str sstyles query static) (concat svalues values)]))
          ["" []])))
 
-(defmethod compile-media :styles [{styles :styles}]
+(defmethod compile-media :styles [{styles :styles} cls]
   (let [pseudo (filterv utils/pseudo? styles)
         pstyles (->> pseudo
                      (reduce
                        (fn [coll [rule styles]]
-                         (conj coll (c/collect-styles (str (:cls @c/env*) (subs (name rule) 1)) styles)))
+                         (conj coll (c/collect-styles (str cls (subs (name rule) 1)) styles)))
                        []))
         styles (filterv (comp not utils/pseudo?) styles)
-        [static values] (c/collect-styles (:cls @c/env*) styles)
+        [static values] (c/collect-styles cls styles)
         values (->> pstyles
                     (mapcat second)
                     (into values))]
     [(str "{" (apply str static (map first pstyles)) "}")
      values]))
 
-(defn build-media [styles]
-  (compile-media {:media styles}))
+(defn build-media [cls styles]
+  (compile-media {:media styles} cls))
 
 (comment
-  (c/reset-env! {:cls "class"})
-
   (build-media
+    "class"
     {[[:only :screen :and [:min-width "300px"]]
       [:print :and [:color]]]
      {:font-size 'p

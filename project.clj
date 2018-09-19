@@ -1,7 +1,16 @@
-(defproject org.roman01la/cljss "1.6.3"
+(defproject com.verypossible/cljss "1.6.4"
   :description "Clojure Style Sheets"
 
-  :url "https://github.com/roman01la/cljss"
+  :repositories [
+                 ["releases" {:url "https://clojars.org"
+                              :sign-releases false
+                              :username :env/clojars_username
+                              :password :env/clojars_password}]
+                 ["snapshots" {:url "https://clojars.org"
+                               :sign-releases false}]
+                 ]
+
+  :url "https://github.com/verypossible/cljss"
 
   :license {:name "Eclipse Public License"
             :url  "http://www.eclipse.org/legal/epl-v10.html"}

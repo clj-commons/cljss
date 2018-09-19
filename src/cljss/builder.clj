@@ -8,12 +8,11 @@
        (map? value)))
 
 (defn build-styles [cls styles]
-  (c/reset-env! {:cls cls})
   (let [pseudo  (filterv utils/pseudo? styles)
         nested  (->> styles
                      (filterv (comp not utils/pseudo?))
                      (filterv utils/nested?))
-        [mstatic mvals] (some-> styles :cljss.core/media build-media)
+        [mstatic mvals] (some-> styles :cljss.core/media ((partial build-media cls)))
         styles  (dissoc styles :cljss.core/media)
         styles  (filterv #(and (not (utils/pseudo? %)) (not (utils/nested? %))) styles)
         [static vals] (c/collect-styles cls styles)

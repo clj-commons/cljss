@@ -1,12 +1,6 @@
 (ns cljss.collect
   (:require [cljss.utils :refer [build-css]]))
 
-(def env* (atom {:id  0
-                 :cls nil}))
-
-(defn reset-env! [v]
-  (reset! env* (merge {:id 0 :cls nil} v)))
-
 (defn dynamic? [[_ value]]
   (not (or (string? value)
            (number? value))))
@@ -15,16 +9,14 @@
   [rule (str "--var-" cls "-" idx)])
 
 (defn collect-styles [cls styles]
-  (let [id      (:cls @env*)
-        dynamic (filterv dynamic? styles)
+  (let [dynamic (filterv dynamic? styles)
         static  (filterv (comp not dynamic?) styles)
-        vars
+        [vars _]
                 (reduce
-                  (fn [vars ds]
-                    (let [ret (conj vars (varid id (:id @env*) ds))]
-                      (swap! env* update :id inc)
-                      ret))
-                  []
+                  (fn [[vars idx] ds]
+                    (let [ret (conj vars (varid cls idx ds))]
+                      [ret (inc idx)]))
+                  [[] 0]
                   dynamic)
         vals    (mapv (fn [[_ var] [_ exp]] [var exp]) vars dynamic)
         static  (->> vars
