@@ -2,12 +2,16 @@
   :description "Clojure Style Sheets"
 
   :repositories [
-                 ["releases" {:url "https://clojars.org"
-                              :sign-releases false
-                              :username :env/clojars_username
-                              :password :env/clojars_password}]
+                 ["clojars" {:url "https://clojars.org"
+                             :sign-releases false
+                             :username :env/clojars_username
+                             :password :env/clojars_password
+                             }]
                  ["snapshots" {:url "https://clojars.org"
-                               :sign-releases false}]
+                               :sign-releases false
+                               :username :env/clojars_username
+                               :password :env/clojars_password
+                               }]
                  ]
 
   :url "https://github.com/verypossible/cljss"
