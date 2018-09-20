@@ -252,7 +252,7 @@
 
 (defmethod compile-media :styles [{styles :styles} cls rule-index]
   (let [pseudo (filterv utils/pseudo? styles)
-        [pstyles rule-index] (c/collect-dynamic-styles rule-index pseudo (fn [rule] (str cls (subs (name rule) 1))))
+        [pstyles rule-index] (c/collect-dynamic-styles rule-index pseudo cls (fn [rule] (subs (name rule) 1)))
 
         styles (filterv (comp not utils/pseudo?) styles)
         [static values rule-index] (c/collect-styles cls styles rule-index)

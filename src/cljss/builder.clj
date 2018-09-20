@@ -13,7 +13,8 @@
         nested (->> styles
                     (filterv (comp not utils/pseudo?))
                     (filterv utils/nested?))
-        [mstatic mvals rule-index] (some-> styles :cljss.core/media ((partial build-media cls rule-index)))
+        [mstatic mvals mrule-index] (some-> styles :cljss.core/media ((partial build-media cls rule-index)))
+        rule-index (or mrule-index rule-index)
         styles (dissoc styles :cljss.core/media)
         styles (filterv #(and (not (utils/pseudo? %)) (not (utils/nested? %))) styles)
 
@@ -21,11 +22,13 @@
         [pstyles rule-index] (c/collect-dynamic-styles
                                rule-index
                                pseudo
-                               (fn [rule] (str cls (subs (name rule) 1))))
+                               cls
+                               (fn [rule] (subs (name rule) 1)))
         [nstyles rule-index] (c/collect-dynamic-styles
                                rule-index
                                nested
-                               (fn [rule] (str cls " " rule)))
+                               cls
+                               (fn [rule] (str " " rule)))
 
         vals (->> pstyles
                   (mapcat second)
