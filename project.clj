@@ -1,7 +1,7 @@
 (defproject clj-commons/cljss "1.6.4"
   :description "Clojure Style Sheets"
 
-  :url "https://github.com/roman01la/cljss"
+  :url "https://github.com/clj-commons/cljss"
 
   :license {:name "Eclipse Public License"
             :url  "http://www.eclipse.org/legal/epl-v10.html"}
