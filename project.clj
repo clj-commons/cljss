@@ -1,4 +1,4 @@
-(defproject clj-commons/cljss "1.6.3"
+(defproject clj-commons/cljss "1.6.4"
   :description "Clojure Style Sheets"
 
   :url "https://github.com/roman01la/cljss"
