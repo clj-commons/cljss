@@ -4,7 +4,7 @@
 
 [CSS-in-JS](https://speakerdeck.com/vjeux/react-css-in-js) for ClojureScript
 
-[![Clojars](https://img.shields.io/clojars/v/org.clj-commons/cljss.svg)](https://clojars.org/org.clj-commons/cljss)
+[![Clojars](https://img.shields.io/clojars/v/clj-commons/cljss.svg)](https://clojars.org/clj-commons/cljss)
 [![CircleCI](https://circleci.com/gh/clj-commons/cljss.svg?style=svg)](https://circleci.com/gh/clj-commons/cljss)
 
 Ask questions on #cljss chat at [Clojuarians Slack](http://clojurians.net/)
