@@ -1,3 +1,4 @@
-{:deps {org.clojure/clojure       {:mvn/version "1.9.0"}
-        org.clojure/clojurescript {:mvn/version "1.10.339"}
-        sablono                   {:mvn/version "0.8.1"}}}
+{:deps {org.clojure/clojure {:mvn/version "1.10.1"}
+        org.clojure/clojurescript {:mvn/version "1.10.520"}
+        sablono {:mvn/version "0.8.1"}
+        cljsjs/emotion {:mvn/version "10.0.6-0"}}}

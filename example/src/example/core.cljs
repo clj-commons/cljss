@@ -1,7 +1,8 @@
 (ns example.core
   (:require-macros [cljss.core])
   (:require [rum.core :as rum]
-            [cljss.core :as css :refer-macros [defstyles defkeyframes]]
+            [cljss.next :refer-macros [defstyles defkeyframes]]
+            [cljss.core :as css]
             [cljss.rum :refer-macros [defstyled]]
             [devcards.core :refer-macros [defcard start-devcard-ui!]]
             [sablono.core :refer [html]]))
