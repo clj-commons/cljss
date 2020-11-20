@@ -201,7 +201,7 @@ _The macro supports referring to styles declaration in a separate \*.clj namespa
 _The macro supports referring to styles declaration in a separate \*.clj namespace._
 
 ```clojure
-(require '[cljss.core :refer [inject-global]])
+(require '[cljss.core :refer-macros [inject-global]])
 
 (def v-margin 4)
 
@@ -272,7 +272,7 @@ _Supported operators for range queries_ `#{'= '< '<= '> '>=}`
 
 ```clojure
 (ns example.core
-  (:require [cljss.core :refer [defstyles]]))
+  (:require [cljss.core :refer-macros [defstyles]]))
 
 (defstyles button [bg]
   {:font-size "14px"
@@ -292,7 +292,7 @@ Using [Sablono](https://github.com/r0man/sablono) templating for [React](https:/
 ```clojure
 (ns example.core
   (:require [sablono.core :refer [html]]
-            [cljss.rum :refer [defstyled]]))
+            [cljss.rum :refer-macros [defstyled]]))
 
 (defstyled Button :button
   {:padding "16px"
