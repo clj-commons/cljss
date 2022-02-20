@@ -272,7 +272,7 @@ _Supported operators for range queries_ `#{'= '< '<= '> '>=}`
 
 ```clojure
 (ns example.core
-  (:require [cljss.core :refer [defstyles]]))
+  (:require [cljss.core :refer-macros [defstyles]]))
 
 (defstyles button [bg]
   {:font-size "14px"
